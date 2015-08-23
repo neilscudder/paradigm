@@ -23,9 +23,9 @@ readonly PROGDIR=$(readlink -m $(dirname $0))
 readonly ARGS="$@"
 readonly PLAYNODE="$1"
 # Server URL and credentials:
-readonly CONTROLUSER=
-readonly CONTROLPASS=
-readonly CONTROLSERVER=
+readonly CONTROLUSER="$2"
+readonly CONTROLPASS="$3"
+readonly CONTROLSERVER="$4"
 # Playnode needs to reach out over this port
 # and the server needs to be listening on it:
 # STATEFUL firewalls must open this port to $CONTROLSERVER
@@ -68,7 +68,7 @@ initTunnel() {
     local tunnelName=$1
     local pidFile=$2
     echo "$(date) - II - initTunnel ${tunnelName}."
-
+    local portCmd="cat 'portalias-${tunnelName}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
     case ${tunnelName} in
         Shell)
             # Query remote server for remote ports to use for forwarding
@@ -80,7 +80,7 @@ initTunnel() {
                     -o StrictHostKeyChecking=no \
                     -o ControlMaster=no \
                 ${CONTROLUSER}@${CONTROLSERVER} \
-                "cat '/home/${CONTROLUSER}/portalias-${tunnelName}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2" \
+                "${portCmd}" \
                 2>&1 )
             establishTunnel ${portalias} ${CLIENTSSHPORT} "${pidFile}"
         ;;
@@ -94,7 +94,7 @@ initTunnel() {
                 -o StrictHostKeyChecking=no \
                 -o ControlMaster=no \
                 ${CONTROLUSER}@${CONTROLSERVER} \
-                "cat '/home/${CONTROLUSER}/portalias-${tunnelName}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2" \
+                "${portCmd}" \
                 2>&1 )
             establishTunnel ${portalias} ${CLIENTMPDPORT} "${pidFile}"
         ;;
