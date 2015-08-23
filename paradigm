@@ -1,0 +1,156 @@
+#!/bin/bash
+
+# PARADIGM 0.1
+# Establishes tunnels for remote access to ssh and mpd
+# Evaluates existing condition with check for sshpass
+# Establishes and checks proxy for bittorrent sync
+
+# Copyright 2014 Neil Scudder neil@neilscudder.com
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+readonly PROGNAME=$(basename $0)
+readonly PROGDIR=$(readlink -m $(dirname $0))
+readonly ARGS="$@"
+readonly PLAYNODE="$1"
+# Server URL and credentials:
+readonly CONTROLUSER=
+readonly CONTROLPASS=
+readonly CONTROLSERVER=
+# Playnode needs to reach out over this port
+# and the server needs to be listening on it:
+# STATEFUL firewalls must open this port to $CONTROLSERVER
+readonly SERVERLISTENINGPORT=42
+# SSH port must match /etc/ssh/sshd_config
+readonly CLIENTSSHPORT=22
+# MPD port must match configuration in /var/lib/mpd/mpd.conf
+readonly CLIENTMPDPORT=6600
+# Proxy port should match in /etc/btsync/paradigm configuration file
+readonly CLIENTPROXYPORT=3002
+
+# TODO check for SSHPASS dependency
+
+main() {
+    tunnelCheck Shell
+    tunnelCheck MPD
+    tunnelCheck Proxy
+}
+
+tunnelCheck() {
+    local tunnelName=$1
+    local pidFile=/tmp/paradigm-${tunnelName}.pid
+        if [ -f ${pidFile} ]; then
+                echo "$(date) - II - Pid file found for ${tunnelName}"
+                local pid=$(cat ${pidFile})
+                if kill -0 $pid > /dev/null 2>&1; then
+                        echo "$(date) - II - Tunnel ${pid} found running (${tunnelName})."
+                else
+                        echo "$(date) - EE - Tunnel ${pid} not found in process list (${tunnelName})."
+                        rm ${pidFile}
+                        initTunnel ${tunnelName} ${pidFile}
+                fi
+        else
+                echo "$(date) - WW - Pid file not found for ${tunnelName}."
+                initTunnel ${tunnelName} ${pidFile}
+        fi
+}
+
+initTunnel() {
+    local tunnelName=$1
+    local pidFile=$2
+    echo "$(date) - II - initTunnel ${tunnelName}."
+
+    case ${tunnelName} in
+        Shell)
+            # Query remote server for remote ports to use for forwarding
+            local portalias=$(/usr/bin/sshpass \
+            -p${CONTROLPASS} \
+                /usr/bin/ssh \
+                -q \
+                -p ${SERVERLISTENINGPORT} \
+                    -o StrictHostKeyChecking=no \
+                    -o ControlMaster=no \
+                ${CONTROLUSER}@${CONTROLSERVER} \
+                "cat '/home/${CONTROLUSER}/portalias-${tunnelName}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2" \
+                2>&1 )
+            establishTunnel ${portalias} ${CLIENTSSHPORT} "${pidFile}"
+        ;;
+        MPD)
+            # Query remote server for remote ports to use for forwarding
+            local portalias=$(/usr/bin/sshpass \
+            -p${CONTROLPASS} \
+                /usr/bin/ssh \
+                -q \
+                -p ${SERVERLISTENINGPORT} \
+                -o StrictHostKeyChecking=no \
+                -o ControlMaster=no \
+                ${CONTROLUSER}@${CONTROLSERVER} \
+                "cat '/home/${CONTROLUSER}/portalias-${tunnelName}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2" \
+                2>&1 )
+            establishTunnel ${portalias} ${CLIENTMPDPORT} "${pidFile}"
+        ;;
+        Proxy)
+            /usr/bin/sshpass \
+            -p${CONTROLPASS} \
+                /usr/bin/ssh \
+                -q \
+                -p ${SERVERLISTENINGPORT} \
+                -o StrictHostKeyChecking=no \
+                -o ServerAliveCountMax=2 \
+                -o ControlMaster=no \
+                -o ExitOnForwardFailure=yes \
+                -o TCPKeepAlive=yes \
+                -o ServerAliveInterval=45 \
+                -N \
+                -D ${CLIENTPROXYPORT} \
+                ${CONTROLUSER}@${CONTROLSERVER} & \
+                echo $! > ${pidFile} &
+        ;;
+    esac
+}
+
+establishTunnel() {
+        if [ $# -eq 3 ]; then
+            local portalias="$1"
+            local localPort="$2"
+            local pidFile="$3"
+            echo "$(date) - II - Portalias ${portalias} being used for ${PLAYNODE} ${pidFile}"
+        else
+            local portalias="NOTSET"
+            local localPort="$1"
+            local pidFile="$2"
+            echo "$(date) - EE - Number of positional params < 3. ${portalias} ${localPort} ${pidfile}"
+            # TODO Considering how serious an error this is, a failover should take effect.
+            return
+        fi
+    
+        # Forward $localPort over remote $portalias, using $SERVERLISTENINGPORT outbound
+        /usr/bin/sshpass \
+        -p${CONTROLPASS} \
+            /usr/bin/ssh \
+            -q \
+            -p ${SERVERLISTENINGPORT} \
+            -o StrictHostKeyChecking=no \
+            -o ServerAliveCountMax=2 \
+            -o ControlMaster=no \
+            -o ExitOnForwardFailure=yes \
+            -o TCPKeepAlive=yes \
+            -o ServerAliveInterval=45 \
+            -N \
+            -R ${portalias}:localhost:${localPort} \
+            ${CONTROLUSER}@${CONTROLSERVER} & \
+            echo $! > "${pidFile}"
+}
+
+main # Call the main function once to start
+
+exit 0

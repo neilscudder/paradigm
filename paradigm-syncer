@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# PARADIGM-SYNCER 0.1
+# Updates btsync configuration file and restarts daemon when necessary
+
+# Copyright 2014 Neil Scudder neil@neilscudder.com
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+readonly PLAYNODE="$1"
+# Server URL and credentials:
+readonly CONTROLUSER=
+readonly CONTROLPASS=
+readonly CONTROLSERVER=
+# Playnode needs to reach out over this port
+# and the server needs to be listening on it:
+# STATEFUL firewalls must open this port to $CONTROLSERVER
+readonly SERVERLISTENINGPORT=42
+readonly PARADIGMDIR=/var/lib/paradigm
+
+main() {
+echo	"$(date) - II - Main function test"
+	if ! mkdir /tmp/paradigm-syncer.lock; then
+	    echo "$(date) - WW - Paradigm syncer already running. Failed to aquire lock."
+	    exit 1
+	else
+            echo "$(date) - II - Paradigm syncer started successfully."
+	fi
+	# remove the lockdir on exit
+	trap 'rm -rf /tmp/paradigm-syncer.lock' EXIT
+
+	# Query remote server db for remote ports to use for forwarding
+	local btsyncconf=$(/usr/bin/sshpass \
+		-p${CONTROLPASS} \
+			/usr/bin/ssh \
+			-q \
+			-p ${SERVERLISTENINGPORT} \
+			-o StrictHostKeyChecking=no \
+			-o ControlMaster=no \
+			${CONTROLUSER}@${CONTROLSERVER} \
+			"cat ${PLAYNODE}.btsync" \
+		2>&1)
+
+	# check if new file contains proper data
+	if [[ $btsyncconf == *usr/lib/btsync/btsync-daemon* ]]; then
+		echo "$(date) - II - Sync configuration file test passed"
+		echo "${btsyncconf}" > ${PARADIGMDIR}/btsyncconf.new
+
+		# Compare against old
+		if diff ${PARADIGMDIR}/btsyncconf.new ${PARADIGMDIR}/btsyncconf.old >/dev/null ; then
+			echo "$(date) - II - Same"
+		else
+			echo "$(date) - WW - Different"
+			# Replace configuration with updated file 
+			cp ${PARADIGMDIR}/btsyncconf.new ${PARADIGMDIR}/btsyncconf.old
+			cp ${PARADIGMDIR}/btsyncconf.new /etc/btsync/paradigm.conf
+			# Lookup each dir in music and delete those not in btsyncconf file
+			find /var/lib/paradigm/music -type d -maxdepth 1| while read -r dir; do
+				if grep "${dir}" btsyncconf.new
+				then
+					echo "$(date) - II - Keep this - ${dir}"
+				else
+					echo "$(date) - WW - Remove this -${dir}"
+	#				rm -rf "${dir}"
+				fi
+			done
+			# and restart daemon
+			/usr/sbin/service btsync --full-restart
+			# paradigm-watcher will now update mpd db
+		fi
+	else
+		echo "$(date) - EE - Sync configuration file test NOT passed"
+	fi
+}
+
+main
+
+exit 0
+
