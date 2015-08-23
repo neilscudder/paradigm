@@ -21,6 +21,12 @@
 readonly PROGNAME=$(basename $0)
 readonly PROGDIR=$(readlink -m $(dirname $0))
 readonly ARGS="$@"
+
+if [ $# -lt 2 ]; then
+    echo Usage: `basename $0` PLAYNODE USER PASSWORD SERVER ... 1>&2
+    exit 1
+fi
+
 readonly PLAYNODE="$1"
 # Server URL and credentials:
 readonly CONTROLUSER="$2"
