@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# PARADIGM 0.1
-# Establishes tunnels for remote access to ssh and mpd
-# Evaluates existing condition with check for sshpass
+# PARADIGM-PROXY 0.1
 # Establishes and checks proxy for bittorrent sync
 
 # Copyright 2014 Neil Scudder neil@neilscudder.com
@@ -40,8 +38,7 @@ readonly CLIENTPROXYPORT=3002
 # TODO check for SSHPASS dependency
 
 main() {
-    tunnelCheck Shell
-    tunnelCheck MPD
+    tunnelCheck Proxy
 }
 
 tunnelCheck() {
@@ -69,68 +66,24 @@ initTunnel() {
     echo "$(date) - II - initTunnel ${tunnelName}."
     local portCmd="cat 'portalias-${tunnelName}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
     case ${tunnelName} in
-        Shell)
-            # Query remote server for remote ports to use for forwarding
-            local portalias=$(/usr/bin/sshpass \
-            -p${CONTROLPASS} \
-                /usr/bin/ssh \
-                -q \
-                -p ${SERVERLISTENINGPORT} \
-                    -o StrictHostKeyChecking=no \
-                    -o ControlMaster=no \
-                ${CONTROLUSER}@${CONTROLSERVER} \
-                "${portCmd}" \
-                2>&1 )
-            establishTunnel ${portalias} ${CLIENTSSHPORT} "${pidFile}"
-        ;;
-        MPD)
-            # Query remote server for remote ports to use for forwarding
-            local portalias=$(/usr/bin/sshpass \
+        Proxy)
+            /usr/bin/sshpass \
             -p${CONTROLPASS} \
                 /usr/bin/ssh \
                 -q \
                 -p ${SERVERLISTENINGPORT} \
                 -o StrictHostKeyChecking=no \
+                -o ServerAliveCountMax=2 \
                 -o ControlMaster=no \
-                ${CONTROLUSER}@${CONTROLSERVER} \
-                "${portCmd}" \
-                2>&1 )
-            establishTunnel ${portalias} ${CLIENTMPDPORT} "${pidFile}"
+                -o ExitOnForwardFailure=yes \
+                -o TCPKeepAlive=yes \
+                -o ServerAliveInterval=45 \
+                -N \
+                -D ${CLIENTPROXYPORT} \
+                ${CONTROLUSER}@${CONTROLSERVER} & \
+                echo $! > ${pidFile} &
         ;;
     esac
-}
-
-establishTunnel() {
-        if [ $# -eq 3 ]; then
-            local portalias="$1"
-            local localPort="$2"
-            local pidFile="$3"
-            echo "$(date) - II - Portalias ${portalias} being used for ${PLAYNODE} ${pidFile}"
-        else
-            local portalias="NOTSET"
-            local localPort="$1"
-            local pidFile="$2"
-            echo "$(date) - EE - Number of positional params < 3. ${portalias} ${localPort} ${pidfile}"
-            # TODO Considering how serious an error this is, a failover should take effect.
-            return
-        fi
-    
-        # Forward $localPort over remote $portalias, using $SERVERLISTENINGPORT outbound
-        /usr/bin/sshpass \
-        -p${CONTROLPASS} \
-            /usr/bin/ssh \
-            -q \
-            -p ${SERVERLISTENINGPORT} \
-            -o StrictHostKeyChecking=no \
-            -o ServerAliveCountMax=2 \
-            -o ControlMaster=no \
-            -o ExitOnForwardFailure=yes \
-            -o TCPKeepAlive=yes \
-            -o ServerAliveInterval=45 \
-            -N \
-            -R ${portalias}:localhost:${localPort} \
-            ${CONTROLUSER}@${CONTROLSERVER} & \
-            echo $! > "${pidFile}"
 }
 
 main # Call the main function once to start
