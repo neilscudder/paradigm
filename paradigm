@@ -23,7 +23,7 @@ readonly PROGDIR=$(readlink -m $(dirname $0))
 readonly ARGS="$@"
 
 if [ $# -lt 2 ]; then
-    echo Usage: `basename $0` PLAYNODE USER PASSWORD SERVER ... 1>&2
+    echo "Usage: `basename $0` PLAYNODE USER PASSWORD SERVER TUNNELNAME" 1>&2
     exit 1
 fi
 
@@ -32,6 +32,7 @@ readonly PLAYNODE="$1"
 readonly CONTROLUSER="$2"
 readonly CONTROLPASS="$3"
 readonly CONTROLSERVER="$4"
+readonly TUNNELNAME="$5"
 # Playnode needs to reach out over this port
 # and the server needs to be listening on it:
 # STATEFUL firewalls must open this port to $CONTROLSERVER
@@ -42,39 +43,36 @@ readonly CLIENTSSHPORT=22
 readonly CLIENTMPDPORT=6600
 # Proxy port should match in /etc/btsync/paradigm configuration file
 readonly CLIENTPROXYPORT=3002
-
+readonly LOGFILE="/var/lib/paradigm/log.paradigm"
 # TODO check for SSHPASS dependency
 
 main() {
-    tunnelCheck Shell
-    tunnelCheck MPD
+    tunnelCheck TUNNELNAME
 }
 
 tunnelCheck() {
-    local tunnelName=$1
-    local pidFile=/tmp/paradigm-${tunnelName}.pid
+    local pidFile=/tmp/paradigm-${TUNNELNAME}.pid
         if [ -f ${pidFile} ]; then
-                echo "$(date) - II - Pid file found for ${tunnelName}"
+                echo "$(date) - II - Pid file found for ${TUNNELNAME}" >> $LOGFILE
                 local pid=$(cat ${pidFile})
                 if kill -0 $pid > /dev/null 2>&1; then
-                        echo "$(date) - II - Tunnel ${pid} found running (${tunnelName})."
+                        echo "$(date) - II - Tunnel ${pid} found running (${TUNNELNAME})." >> $LOGFILE
                 else
-                        echo "$(date) - EE - Tunnel ${pid} not found in process list (${tunnelName})."
+                        echo "$(date) - EE - Tunnel ${pid} not found in process list (${TUNNELNAME})." >> $LOGFILE
                         rm ${pidFile}
-                        initTunnel ${tunnelName} ${pidFile}
+                        initTunnel ${TUNNELNAME} ${pidFile}
                 fi
         else
-                echo "$(date) - WW - Pid file not found for ${tunnelName}."
-                initTunnel ${tunnelName} ${pidFile}
+                echo "$(date) - WW - Pid file not found for ${TUNNELNAME}." >> $LOGFILE
+                initTunnel ${TUNNELNAME} ${pidFile}
         fi
 }
 
 initTunnel() {
-    local tunnelName=$1
     local pidFile=$2
-    echo "$(date) - II - initTunnel ${tunnelName}."
-    local portCmd="cat 'portalias-${tunnelName}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
-    case ${tunnelName} in
+    echo "$(date) - II - initTunnel ${TUNNELNAME}." >> $LOGFILE
+    local portCmd="cat 'portalias-${TUNNELNAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
+    case ${TUNNELNAME} in
         Shell)
             # Query remote server for remote ports to use for forwarding
             local portalias=$(/usr/bin/sshpass \
@@ -111,12 +109,12 @@ establishTunnel() {
             local portalias="$1"
             local localPort="$2"
             local pidFile="$3"
-            echo "$(date) - II - Portalias ${portalias} being used for ${PLAYNODE} ${pidFile}"
+            echo "$(date) - II - Portalias ${portalias} being used for ${PLAYNODE} ${pidFile}" >> $LOGFILE
         else
             local portalias="NOTSET"
             local localPort="$1"
             local pidFile="$2"
-            echo "$(date) - EE - Number of positional params < 3. ${portalias} ${localPort} ${pidfile}"
+            echo "$(date) - EE - Number of positional params < 3. ${portalias} ${localPort} ${pidfile}" >> $LOGFILE
             # TODO Considering how serious an error this is, a failover should take effect.
             return
         fi
