@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# PARADIGM 0.3
-# Checks for and establishes tunnels for remote access to local services
-# Requires /var/lib/paradigm/
+# PARADIGM 0.3.1
 # Copyright 2014 Neil Scudder neil@neilscudder.com
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
