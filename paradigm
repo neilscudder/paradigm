@@ -79,16 +79,16 @@ getPortalias() {
         -p${CONTROLPASS} \
         /usr/bin/ssh \
         -q \
-                -p ${SERVERLISTENINGPORT} \
-                    -o StrictHostKeyChecking=no \
-                    -o ControlMaster=no \
-                ${CONTROLUSER}@${CONTROLSERVER} \
-                "${portCmd}" \
-                2>&1 )
+        -p ${SERVERLISTENINGPORT} \
+        -o StrictHostKeyChecking=no \
+        -o ControlMaster=no \
+        ${CONTROLUSER}@${CONTROLSERVER} \
+        "${portCmd}" \
+        2>&1 )
     if [ $? -eq 0 ]; then
         establishTunnel ${portalias} ${SERVICEPORT} "${pidFile}"
     else
-        echo "fucked"
+        echo "$(date) - EE Portalias not set. Ssh retrieval failed."
     fi
 }
 
@@ -102,7 +102,7 @@ establishTunnel() {
             local portalias="NOTSET"
             local localPort="$1"
             local pidFile="$2"
-            echo "$(date) - EE - Number of positional params < 3. ${portalias} ${localPort} ${pidfile}" >> $LOGFILE
+            echo "$(date) - EE - Number of args < 3. ${portalias} ${localPort} ${pidfile}" >> $LOGFILE
             # TODO Considering how serious an error this is, a failover should take effect.
             return
         fi
@@ -120,7 +120,7 @@ establishTunnel() {
             -o TCPKeepAlive=yes \
             -o ServerAliveInterval=45 \
             -N \
-            -R ${portalias}:localhost:${localPort} \
+            -R ${portalias}:localhost:${SERVICEPORT} \
             ${CONTROLUSER}@${CONTROLSERVER} & \
             echo $! > "${pidFile}"
 }
