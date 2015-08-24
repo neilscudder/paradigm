@@ -18,7 +18,7 @@ readonly PROGNAME=$(basename $0)
 readonly PROGDIR=$(readlink -m $(dirname $0))
 readonly ARGS="$@"
 
-# TODO moe args to switches, set defaults otherwise
+# TODO move args to switches, set defaults otherwise
 if [ $# -lt 2 ]; then
    echo "
 Usage: PLAYNODE USER PASSWORD SERVER SERVICENAME SERVICEPORT 
@@ -48,10 +48,6 @@ readonly LOGFILE="/var/lib/paradigm/log.paradigm"
 # TODO check for SSHPASS dependency
 
 main() {
-    tunnelCheck ${SERVICENAME}
-}
-
-tunnelCheck() {
     local pidFile=/tmp/paradigm-${SERVICENAME}.pid
     if [ -f ${pidFile} ]; then
         echo "$(date) ${PLAYNODE} - II - Pid file found for ${SERVICENAME}" >> $LOGFILE
