@@ -86,23 +86,21 @@ getPortalias() {
         "${portCmd}" \
         2>&1 )
     if [ $? -eq 0 ]; then
-        establishTunnel ${portalias} ${SERVICEPORT} "${pidFile}"
+        establishTunnel ${portalias} "${pidFile}"
     else
-        echo "$(date) - EE Portalias not set. Ssh retrieval failed."
+        echo "$(date) - EE - Portalias not set. Ssh retrieval failed."
     fi
 }
 
 establishTunnel() {
-        if [ $# -eq 3 ]; then
+        if [ $# -eq 2 ]; then
             local portalias="$1"
-            local localPort="$2"
-            local pidFile="$3"
+            local pidFile="$2"
             echo "$(date) - II - Portalias ${portalias} being used for ${PLAYNODE} ${pidFile}" >> $LOGFILE
         else
             local portalias="NOTSET"
-            local localPort="$1"
             local pidFile="$2"
-            echo "$(date) - EE - Number of args < 3. ${portalias} ${localPort} ${pidfile}" >> $LOGFILE
+            echo "$(date) - EE - Number of args is wrong. ${portalias} ${localPort} ${pidfile}" >> $LOGFILE
             # TODO Considering how serious an error this is, a failover should take effect.
             return
         fi
