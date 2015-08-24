@@ -1,9 +1,8 @@
 #!/bin/bash
 
 # PARADIGM 0.1
+# Checks for and
 # Establishes tunnels for remote access to ssh and mpd
-# Evaluates existing condition with check for sshpass
-# Establishes and checks proxy for bittorrent sync
 
 # Copyright 2014 Neil Scudder neil@neilscudder.com
 # This program is free software: you can redistribute it and/or modify
@@ -23,7 +22,7 @@ readonly PROGDIR=$(readlink -m $(dirname $0))
 readonly ARGS="$@"
 
 if [ $# -lt 2 ]; then
-    echo "Usage: `basename $0` PLAYNODE USER PASSWORD SERVER TUNNELNAME" 1>&2
+    echo "Usage: `basename $0` PLAYNODE USER PASSWORD SERVER TUNNELNAME SERVICEPORT" 1>&2
     exit 1
 fi
 
@@ -33,6 +32,7 @@ readonly CONTROLUSER="$2"
 readonly CONTROLPASS="$3"
 readonly CONTROLSERVER="$4"
 readonly TUNNELNAME="$5"
+readonly SERVICEPORT=$6
 # Playnode needs to reach out over this port
 # and the server needs to be listening on it:
 # STATEFUL firewalls must open this port to $CONTROLSERVER
@@ -72,9 +72,7 @@ initTunnel() {
     local pidFile=$2
     echo "$(date) - II - initTunnel ${TUNNELNAME}." >> $LOGFILE
     local portCmd="cat 'portalias-${TUNNELNAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
-    case ${TUNNELNAME} in
-        Shell)
-            # Query remote server for remote ports to use for forwarding
+    # Query remote server for remote ports to use for forwarding
             local portalias=$(/usr/bin/sshpass \
             -p${CONTROLPASS} \
                 /usr/bin/ssh \
@@ -85,23 +83,7 @@ initTunnel() {
                 ${CONTROLUSER}@${CONTROLSERVER} \
                 "${portCmd}" \
                 2>&1 )
-            establishTunnel ${portalias} ${CLIENTSSHPORT} "${pidFile}"
-        ;;
-        MPD)
-            # Query remote server for remote ports to use for forwarding
-            local portalias=$(/usr/bin/sshpass \
-            -p${CONTROLPASS} \
-                /usr/bin/ssh \
-                -q \
-                -p ${SERVERLISTENINGPORT} \
-                -o StrictHostKeyChecking=no \
-                -o ControlMaster=no \
-                ${CONTROLUSER}@${CONTROLSERVER} \
-                "${portCmd}" \
-                2>&1 )
-            establishTunnel ${portalias} ${CLIENTMPDPORT} "${pidFile}"
-        ;;
-    esac
+            establishTunnel ${portalias} ${SERVICEPORT} "${pidFile}"
 }
 
 establishTunnel() {
