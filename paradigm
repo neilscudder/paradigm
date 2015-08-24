@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# PARADIGM 0.2
-# Checks for and
-# Establishes tunnels for remote access to ssh and mpd
-
+# PARADIGM 0.3
+# Checks for and establishes tunnels for remote access to local services
+# Requires /var/lib/paradigm/
 # Copyright 2014 Neil Scudder neil@neilscudder.com
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,8 +21,17 @@ readonly PROGDIR=$(readlink -m $(dirname $0))
 readonly ARGS="$@"
 
 if [ $# -lt 2 ]; then
-    echo "Usage: `basename $0` PLAYNODE USER PASSWORD SERVER TUNNELNAME SERVICEPORT" 1>&2
-    exit 1
+   echo "
+Usage: PLAYNODE USER PASSWORD SERVER SERVICENAME SERVICEPORT 
+A playnode is a name to define a group of service ports, usually hostname
+User account on remote server with shell access required.
+Server side flatfile is named portalias-SERVICENAME.
+Entries are formatted one playnode per line like this: dummy^32767
+Where dummy is the playnode name, and 32767 is the server local port
+A server-side script registers new playnodes to new ports in this file.
+Ex.: paradigm dummy user password server.com shell 22
+Allows the server to access the client port 22 on localhost:32767"
+  exit 1
 fi
 
 readonly PLAYNODE="$1"
@@ -31,7 +39,7 @@ readonly PLAYNODE="$1"
 readonly CONTROLUSER="$2"
 readonly CONTROLPASS="$3"
 readonly CONTROLSERVER="$4"
-readonly TUNNELNAME="$5"
+readonly SERVICENAME="$5"
 readonly SERVICEPORT=$6
 # Playnode needs to reach out over this port
 # and the server needs to be listening on it:
@@ -41,31 +49,31 @@ readonly LOGFILE="/var/lib/paradigm/log.paradigm"
 # TODO check for SSHPASS dependency
 
 main() {
-    tunnelCheck TUNNELNAME
+    tunnelCheck SERVICENAME
 }
 
 tunnelCheck() {
-    local pidFile=/tmp/paradigm-${TUNNELNAME}.pid
+    local pidFile=/tmp/paradigm-${SERVICENAME}.pid
         if [ -f ${pidFile} ]; then
-                echo "$(date) - II - Pid file found for ${TUNNELNAME}" >> $LOGFILE
+                echo "$(date) - II - Pid file found for ${SERVICENAME}" >> $LOGFILE
                 local pid=$(cat ${pidFile})
                 if kill -0 $pid > /dev/null 2>&1; then
-                        echo "$(date) - II - Tunnel ${pid} found running (${TUNNELNAME})." >> $LOGFILE
+                        echo "$(date) - II - Tunnel ${pid} found running (${SERVICENAME})." >> $LOGFILE
                 else
-                        echo "$(date) - EE - Tunnel ${pid} not found in process list (${TUNNELNAME})." >> $LOGFILE
+                        echo "$(date) - EE - Tunnel ${pid} not found in process list (${SERVICENAME})." >> $LOGFILE
                         rm ${pidFile}
-                        initTunnel ${TUNNELNAME} ${pidFile}
+                        initTunnel ${SERVICENAME} ${pidFile}
                 fi
         else
-                echo "$(date) - WW - Pid file not found for ${TUNNELNAME}." >> $LOGFILE
-                initTunnel ${TUNNELNAME} ${pidFile}
+                echo "$(date) - WW - Pid file not found for ${SERVICENAME}." >> $LOGFILE
+                initTunnel ${SERVICENAME} ${pidFile}
         fi
 }
 
 initTunnel() {
     local pidFile=$2
-    echo "$(date) - II - initTunnel ${TUNNELNAME}." >> $LOGFILE
-    local portCmd="cat 'portalias-${TUNNELNAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
+    echo "$(date) - II - initTunnel ${SERVICENAME}." >> $LOGFILE
+    local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
     # Query remote server for remote ports to use for forwarding
             local portalias=$(/usr/bin/sshpass \
             -p${CONTROLPASS} \
