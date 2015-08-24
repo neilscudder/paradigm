@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# PARADIGM 0.1
+# PARADIGM 0.2
 # Checks for and
 # Establishes tunnels for remote access to ssh and mpd
 
@@ -37,12 +37,6 @@ readonly SERVICEPORT=$6
 # and the server needs to be listening on it:
 # STATEFUL firewalls must open this port to $CONTROLSERVER
 readonly SERVERLISTENINGPORT=42
-# SSH port must match /etc/ssh/sshd_config
-readonly CLIENTSSHPORT=22
-# MPD port must match configuration in /var/lib/mpd/mpd.conf
-readonly CLIENTMPDPORT=6600
-# Proxy port should match in /etc/btsync/paradigm configuration file
-readonly CLIENTPROXYPORT=3002
 readonly LOGFILE="/var/lib/paradigm/log.paradigm"
 # TODO check for SSHPASS dependency
 
