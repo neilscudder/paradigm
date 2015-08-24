@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # PARADIGM 0.3.1
 # Copyright 2014 Neil Scudder neil@neilscudder.com
@@ -13,14 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# I should use these
-readonly PROGNAME=$(basename $0)
-readonly PROGDIR=$(readlink -m $(dirname $0))
-readonly ARGS="$@"
-
-# TODO move args to switches, set defaults otherwise
 if [ $# -lt 2 ]; then
-   echo "
+   cat << EOF
 Usage: PLAYNODE USER PASSWORD SERVER SERVICENAME SERVICEPORT 
 A playnode is a name to define a group of service ports, usually hostname
 User account on remote server with shell access required.
@@ -29,7 +23,8 @@ Entries are formatted one playnode per line like this: dummy^32767
 Where dummy is the playnode name, and 32767 is the server local port
 A server-side script registers new playnodes to new ports in this file.
 Ex.: paradigm dummy user password server.com shell 22
-Allows the server to access the client port 22 on localhost:32767"
+Allows the server to access the client port 22 on localhost:32767
+EOF
   exit 1
 fi
 
