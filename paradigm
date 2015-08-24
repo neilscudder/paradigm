@@ -13,11 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
+# I should use these
 readonly PROGNAME=$(basename $0)
 readonly PROGDIR=$(readlink -m $(dirname $0))
 readonly ARGS="$@"
 
+# TODO moe args to switches, set defaults otherwise
 if [ $# -lt 2 ]; then
    echo "
 Usage: PLAYNODE USER PASSWORD SERVER SERVICENAME SERVICEPORT 
@@ -47,25 +48,25 @@ readonly LOGFILE="/var/lib/paradigm/log.paradigm"
 # TODO check for SSHPASS dependency
 
 main() {
-    tunnelCheck SERVICENAME
+    tunnelCheck ${SERVICENAME}
 }
 
 tunnelCheck() {
     local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-        if [ -f ${pidFile} ]; then
-                echo "$(date) ${PLAYNODE} - II - Pid file found for ${SERVICENAME}" >> $LOGFILE
-                local pid=$(cat ${pidFile})
-                if kill -0 $pid > /dev/null 2>&1; then
-                        echo "$(date) ${PLAYNODE}- II - Tunnel ${pid} found running (${SERVICENAME})." >> $LOGFILE
-                else
-                        echo "$(date) ${PLAYNODE}- EE - Tunnel ${pid} not found in process list (${SERVICENAME})." >> $LOGFILE
-                        rm ${pidFile}
-                        getPortalias ${SERVICENAME} ${pidFile}
-                fi
+    if [ -f ${pidFile} ]; then
+        echo "$(date) ${PLAYNODE} - II - Pid file found for ${SERVICENAME}" >> $LOGFILE
+        local pid=$(cat ${pidFile})
+        if kill -0 $pid > /dev/null 2>&1; then
+            echo "$(date) ${PLAYNODE}- II - Tunnel ${pid} found running (${SERVICENAME})." >> $LOGFILE
         else
-                echo "$(date) ${PLAYNODE}- WW - Pid file not found for ${SERVICENAME}." >> $LOGFILE
-                getPortalias ${SERVICENAME} ${pidFile}
+            echo "$(date) ${PLAYNODE}- EE - Tunnel ${pid} not found in process list (${SERVICENAME})." >> $LOGFILE
+            rm ${pidFile}
+            getPortalias ${SERVICENAME} ${pidFile}
         fi
+    else
+        echo "$(date) ${PLAYNODE}- WW - Pid file not found for ${SERVICENAME}." >> $LOGFILE
+        getPortalias ${SERVICENAME} ${pidFile}
+    fi
 }
 
 getPortalias() {
@@ -83,6 +84,9 @@ getPortalias() {
         ${CONTROLUSER}@${CONTROLSERVER} \
         "${portCmd}" \
         2>&1 )
+    # TODO: Below does not work. Exit code always 0, probably sshpass wrapper overrides.
+    # TODO: Improve error handling for portalias retrieval
+    # Below code may work if sshpass removed, key-based auth used instead
     if [ $? -eq 0 ]; then
         establishTunnel ${portalias} "${pidFile}"
     else
@@ -91,34 +95,34 @@ getPortalias() {
 }
 
 establishTunnel() {
-        if [ $# -eq 2 ]; then
-            local portalias="$1"
-            local pidFile="$2"
-            echo "$(date) ${PLAYNODE}- II - Portalias ${portalias} being used for ${PLAYNODE} ${pidFile}" >> $LOGFILE
-        else
-            local portalias="NOTSET"
-            local pidFile="$1"
-            echo "$(date) ${PLAYNODE}- EE - Number of args is wrong. ${portalias} ${pidfile}" >> $LOGFILE
-            # TODO Considering how serious an error this is, a failover should take effect.
-            return
-        fi
+    if [ $# -eq 2 ]; then
+        local portalias="$1"
+        local pidFile="$2"
+        echo "$(date) ${PLAYNODE}- II - Portalias ${portalias} being used for local ${SERVICEPORT} ${pidFile}" >> $LOGFILE
+    else
+        local portalias="NOTSET"
+        local pidFile="$1"
+        echo "$(date) ${PLAYNODE}- EE - Number of args is wrong. getPortalias() failed. ${pidFile}" >> $LOGFILE
+        # TODO Considering how serious an error this is, a failover should take effect.
+        return
+    fi
     
-        # Forward $localPort over remote $portalias, using $SERVERLISTENINGPORT outbound
-        /usr/bin/sshpass \
+    # Forward $SERVICEPORT over remote $portalias, using $SERVERLISTENINGPORT outbound
+    /usr/bin/sshpass \
         -p${CONTROLPASS} \
-            /usr/bin/ssh \
-            -q \
-            -p ${SERVERLISTENINGPORT} \
-            -o StrictHostKeyChecking=no \
-            -o ServerAliveCountMax=2 \
-            -o ControlMaster=no \
-            -o ExitOnForwardFailure=yes \
-            -o TCPKeepAlive=yes \
-            -o ServerAliveInterval=45 \
-            -N \
-            -R ${portalias}:localhost:${SERVICEPORT} \
-            ${CONTROLUSER}@${CONTROLSERVER} & \
-            echo $! > "${pidFile}"
+        /usr/bin/ssh \
+        -q \
+        -p ${SERVERLISTENINGPORT} \
+        -o StrictHostKeyChecking=no \
+        -o ServerAliveCountMax=2 \
+        -o ControlMaster=no \
+        -o ExitOnForwardFailure=yes \
+        -o TCPKeepAlive=yes \
+        -o ServerAliveInterval=45 \
+        -N \
+        -R ${portalias}:localhost:${SERVICEPORT} \
+        ${CONTROLUSER}@${CONTROLSERVER} & \
+    echo $! > "${pidFile}"
 }
 
 main # Call the main function once to start
