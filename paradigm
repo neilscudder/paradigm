@@ -75,17 +75,21 @@ getPortalias() {
     echo "$(date) - II - getPortalias ${SERVICENAME}." >> $LOGFILE
     local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
     # Query remote server for remote ports to use for forwarding
-            local portalias=$(/usr/bin/sshpass \
-            -p${CONTROLPASS} \
-                /usr/bin/ssh \
-                -q \
+    local portalias=$(/usr/bin/sshpass \
+        -p${CONTROLPASS} \
+        /usr/bin/ssh \
+        -q \
                 -p ${SERVERLISTENINGPORT} \
                     -o StrictHostKeyChecking=no \
                     -o ControlMaster=no \
                 ${CONTROLUSER}@${CONTROLSERVER} \
                 "${portCmd}" \
                 2>&1 )
-            establishTunnel ${portalias} ${SERVICEPORT} "${pidFile}"
+    if [ $? -eq 0 ]; then
+        establishTunnel ${portalias} ${SERVICEPORT} "${pidFile}"
+    else
+        echo "fucked"
+    fi
 }
 
 establishTunnel() {
