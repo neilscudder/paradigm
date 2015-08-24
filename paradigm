@@ -62,17 +62,17 @@ tunnelCheck() {
                 else
                         echo "$(date) - EE - Tunnel ${pid} not found in process list (${SERVICENAME})." >> $LOGFILE
                         rm ${pidFile}
-                        initTunnel ${SERVICENAME} ${pidFile}
+                        getPortalias ${SERVICENAME} ${pidFile}
                 fi
         else
                 echo "$(date) - WW - Pid file not found for ${SERVICENAME}." >> $LOGFILE
-                initTunnel ${SERVICENAME} ${pidFile}
+                getPortalias ${SERVICENAME} ${pidFile}
         fi
 }
 
-initTunnel() {
+getPortalias() {
     local pidFile=$2
-    echo "$(date) - II - initTunnel ${SERVICENAME}." >> $LOGFILE
+    echo "$(date) - II - getPortalias ${SERVICENAME}." >> $LOGFILE
     local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
     # Query remote server for remote ports to use for forwarding
             local portalias=$(/usr/bin/sshpass \
