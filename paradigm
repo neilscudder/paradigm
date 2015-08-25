@@ -92,19 +92,23 @@ readonly LOGFILE="/var/lib/paradigm/log.paradigm"
 main() {
     local pidFile=/tmp/paradigm-${SERVICENAME}.pid
     if [ -f ${pidFile} ]; then
-        echo "$(date) ${PLAYNODE} - II - Pid file found for ${SERVICENAME}" >> $LOGFILE
+        logEntry "II - Pid file found for ${SERVICENAME}"
         local pid=$(cat ${pidFile})
         if kill -0 $pid > /dev/null 2>&1; then
-            echo "$(date) ${PLAYNODE}- II - Tunnel ${pid} found running (${SERVICENAME})." >> $LOGFILE
+            logEntry "II - Tunnel ${pid} found running (${SERVICENAME})."
         else
-            echo "$(date) ${PLAYNODE}- EE - Tunnel ${pid} not found in process list (${SERVICENAME})." >> $LOGFILE
+            logEntry "EE - Tunnel ${pid} not found in process list (${SERVICENAME})."
             rm ${pidFile}
             getPortalias ${SERVICENAME} ${pidFile}
         fi
     else
-        echo "$(date) ${PLAYNODE}- WW - Pid file not found for ${SERVICENAME}." >> $LOGFILE
+        logEntry "WW - Pid file not found for ${SERVICENAME}."
         getPortalias ${SERVICENAME} ${pidFile}
     fi
+}
+
+logEntry(){
+    echo "$(date) ${PLAYNODE} - ${1}" >> $LOGFILE
 }
 
 getPortalias() {
