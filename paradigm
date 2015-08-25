@@ -1,6 +1,16 @@
 #!/bin/sh
 
-# PARADIGM 0.3.1
+# PARADIGM 0.4
+# Checks for existing ssh tunnels and initiates reverse port-forwarding.
+# Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
+
+# This script runs on a machine we arbitrarily name a playnode.
+# The script connects the playnode to a server we call control.
+# A local service like sshd is given an arbitrary label, the SERVICENAME
+# Local listening ports for each service are specified as SERVICEPORT
+# The server should have a jailed user account with basic shell functions.
+# At present, authentication is by sshpass using cli arg credentials. :(
+
 # Copyright 2014 Neil Scudder neil@neilscudder.com
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,34 +23,71 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-if [ $# -lt 2 ]; then
-   cat << EOF
-Usage: PLAYNODE USER PASSWORD SERVER SERVICENAME SERVICEPORT 
-A playnode is a name to define a group of service ports, usually hostname
+showHelp(){
+    cat << EOF
+Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
+
+-h, ?
+    Print this usage text.
+-u 
+    User account on server. Default=paradigm
+-p 
+    Server account password 
+-P 
+    SERVERLISTENINGPORT default=22
+
+A playnode is a name to define a group of service ports, usually the hostname.
 User account on remote server with shell access required.
 Server side flatfile is named portalias-SERVICENAME.
 Entries are formatted one playnode per line like this: dummy^32767
 Where dummy is the playnode name, and 32767 is the server local port
 A server-side script registers new playnodes to new ports in this file.
-Ex.: paradigm dummy user password server.com shell 22
-Allows the server to access the client port 22 on localhost:32767
+
+Example: 
+    paradigm -u user -p password PlaynodeName Shell 22 control.server.com
+
 EOF
-  exit 1
-fi
+}
+
+# From: http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+# A POSIX variable
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+CONTROLUSER=""
+CONTROLPASS=""
+
+while getopts "hl:u:p:P:" opt; do
+    case "$opt" in
+    h)
+        showHelp
+        exit 0
+        ;;
+    l)  
+        readonly LOGFILE=$OPTARG
+        ;;
+    u)  
+        readonly CONTROLUSER="$OPTARG"
+        echo $CONTROLUSER
+        ;;
+    p)  
+        CONTROLPASS=$OPTARG
+        ;;
+    P)  
+        readonly SERVERLISTENINGPORT=$OPTARG
+        ;;
+    esac
+done
+shift $((OPTIND-1))
+[ "$1" = "--" ] && shift
+echo "CONTROLUSER=$CONTROLUSER, CONTROLPASS=$CONTROLPASS, Leftovers: $@"
 
 readonly PLAYNODE="$1"
-# Server URL and credentials:
-readonly CONTROLUSER="$2"
-readonly CONTROLPASS="$3"
+readonly SERVICENAME="$2"
+readonly SERVICEPORT=$3
 readonly CONTROLSERVER="$4"
-readonly SERVICENAME="$5"
-readonly SERVICEPORT=$6
-# Playnode needs to reach out over this port
-# and the server needs to be listening on it:
-# STATEFUL firewalls must open this port to $CONTROLSERVER
+# Set default if not already
 readonly SERVERLISTENINGPORT=42
 readonly LOGFILE="/var/lib/paradigm/log.paradigm"
-# TODO check for SSHPASS dependency
+
 
 main() {
     local pidFile=/tmp/paradigm-${SERVICENAME}.pid
@@ -115,6 +162,13 @@ establishTunnel() {
         ${CONTROLUSER}@${CONTROLSERVER} & \
     echo $! > "${pidFile}"
 }
+
+
+
+if [ $# -lt 2 ]; then
+    showHelp
+    exit 1
+fi
 
 main # Call the main function once to start
 
