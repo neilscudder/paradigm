@@ -113,7 +113,7 @@ logEntry(){
 
 getPortalias() {
     local pidFile=$2
-    echo "$(date) ${PLAYNODE}- II - getPortalias ${SERVICENAME}." >> $LOGFILE
+    logEntry "II - getPortalias ${SERVICENAME}."
     local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
     # Query remote server for remote ports to use for forwarding
     local portalias=$(/usr/bin/sshpass \
@@ -132,7 +132,7 @@ getPortalias() {
     if [ $? -eq 0 ]; then
         establishTunnel ${portalias} "${pidFile}"
     else
-        echo "$(date) ${PLAYNODE}- EE - Portalias not set. Ssh retrieval failed."
+        logEntry "EE - Portalias not set. Ssh retrieval failed."
     fi
 }
 
@@ -140,11 +140,11 @@ establishTunnel() {
     if [ $# -eq 2 ]; then
         local portalias="$1"
         local pidFile="$2"
-        echo "$(date) ${PLAYNODE}- II - Portalias ${portalias} being used for local ${SERVICEPORT} ${pidFile}" >> $LOGFILE
+        logEntry "II - Portalias ${portalias} being used for local ${SERVICEPORT} ${pidFile}"
     else
         local portalias="NOTSET"
         local pidFile="$1"
-        echo "$(date) ${PLAYNODE}- EE - Number of args is wrong. getPortalias() failed. ${pidFile}" >> $LOGFILE
+        logEntry "EE - Number of args is wrong. getPortalias() failed. ${pidFile}"
         # TODO Considering how serious an error this is, a failover should take effect.
         return
     fi
