@@ -1,6 +1,6 @@
 # paradigm
 
-Access services on client machines in remote networks as though they are on your server's localhost. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run from the root crontab once every minute. <strong>The server side component is not here yet. You will have to manually create the flat file</strong>
+Access services on client machines in remote networks as though they are on your server's localhost. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run from the root crontab once every minute. <strong>The server side component is not here yet. You will have to manually create the flat file.</strong>
 
 By consolidating the local services of many remote clients on the server, commands may be issued and data retrieved quickly, without having to restablish connection and authenticate each time. This facilitates highly responsive server-side control of local services from a WAN connection, without having to configure local networks. For example, a mobile web app to control music can run on a public web server to control a headless music player on the local network. This is a more simple (for the user), robust and reliable method.
 
