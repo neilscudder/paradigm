@@ -1,17 +1,17 @@
 #!/bin/sh
 
-# PARADIGM 0.4
+# PARADIGM 0.4.1
 # Checks for existing ssh tunnels and initiates reverse port-forwarding.
 # Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
-# This script runs on a machine we arbitrarily name a playnode.
-# The script connects the playnode to a server we call control.
-# A local service like sshd is given an arbitrary label, the SERVICENAME
-# Local listening ports for each service are specified as SERVICEPORT
+# This script runs on a machine we arbitrarily name a PLAYNODE.
+# The script connects the playnode to a server we call CONTROL.
+# A local service like sshd is given an arbitrary label, the SERVICENAME.
+# A local listening port for each service are specified as SERVICEPORT.
 # The server should have a jailed user account with basic shell functions.
-# At present, authentication is by sshpass using cli arg credentials. :(
+# At present, authentication is by sshpass using CLI arg credentials. :(
 
-# Copyright 2014 Neil Scudder neil@neilscudder.com
+# Copyright 2014 Neil Scudder - neil@neilscudder.com
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -43,15 +43,16 @@ Entries are formatted one playnode per line like this: dummy^32767
 Where dummy is the playnode name, and 32767 is the server local port
 A server-side script registers new playnodes to new ports in this file.
 
-Example: 
+Examples: 
     paradigm -u user -p password PlaynodeName Shell 22 control.server.com
+    paradigm -u user -p password PlaynodeName MPD 6600 control.server.com
 
 EOF
 }
 
-# From: http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
-# A POSIX variable
-OPTIND=1         # Reset in case getopts has been used previously in the shell.
+# Reset this POSIX variable in case getopts has been used previously in the shell.
+OPTIND=1
+# Do I need to?:     
 CONTROLUSER=""
 CONTROLPASS=""
 
@@ -62,14 +63,13 @@ while getopts "hl:u:p:P:" opt; do
         exit 0
         ;;
     l)  
-        readonly LOGFILE=$OPTARG
+        readonly LOGFILE="$OPTARG"
         ;;
     u)  
         readonly CONTROLUSER="$OPTARG"
-        echo $CONTROLUSER
         ;;
     p)  
-        CONTROLPASS=$OPTARG
+        readonly CONTROLPASS="$OPTARG"
         ;;
     P)  
         readonly SERVERLISTENINGPORT=$OPTARG
@@ -78,7 +78,7 @@ while getopts "hl:u:p:P:" opt; do
 done
 shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
-echo "CONTROLUSER=$CONTROLUSER, CONTROLPASS=$CONTROLPASS, Leftovers: $@"
+#echo "CONTROLUSER=$CONTROLUSER, CONTROLPASS=$CONTROLPASS, Leftovers: $@"
 
 readonly PLAYNODE="$1"
 readonly SERVICENAME="$2"
