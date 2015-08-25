@@ -1,6 +1,14 @@
 # paradigm
 
-A shell script to establish and maintain forwarding of local ports over reverse ssh tunnels to a server for remote access to local services. Reverse port forwarding over ssh is useful for maintaining access to headless units in unpredictable network conditions.
+Access services on client machines in remote networks as though they are on your server's localhost. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run from the root crontab once every minute.
+
+By consolidating the local services of many remote clients on the server, commands may be issued and data retrieved quickly, without having to restablish connection and authenticate each time. This facilitates highly responsive server-side control of local services from a WAN connection, without having to configure local networks. For example, a mobile web app to control music can run on a public web server to control a headless music player on the local network. This is a more simple (for the user), robust and reliable method.
+
+Server-side control of a local service allows a reduction in stress on the client unit, augmentation of data with meta data, and caching for efficient scaling to many users. For example, the music player client will do less work, because the server only makes 10 requests of it per minute, while relaying that data 10 times as often to user's accessing the web site, and augmenting it with album artwork retrieved from Amazon.
+
+But that is a use case. This script checks for the existence of , and otherwise initiates a ssh tunnel to reverse-forward a local port to a remote server. It has verbose logs. It is a work-in-progress.
+
+This is my first open-source software project.
 
 <h2>Definitions</h2>
 <ul>
