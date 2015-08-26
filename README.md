@@ -21,7 +21,7 @@ Setup ssh-keys for authentication: (http://www.rebol.com/docs/ssh-auto-login.htm
 - cat control_rsa.pub | ssh jailedUser@control.server.com 'cat >> .ssh/authorized_keys'
 - echo "Host control.server.com" >> config
 - echo "Hostname control.server.com" >> config
-- echo "IdentityFile ~/.ssh/myserver.rsa" >> config
+- echo "IdentityFile ~/.ssh/control_rsa" >> config
 
 Uses a server-side flat file to store portaliases to simplify connecting and provide access to multiple services on multiple nodes. Each node is able to forward as many ports as required.
 
