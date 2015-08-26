@@ -25,7 +25,7 @@ Setup ssh-keys for authentication: (http://www.rebol.com/docs/ssh-auto-login.htm
 - enter no passphrase
 - ssh jailedUser@control.server.com 'mkdir .ssh'
 - cat control_rsa.pub | ssh jailedUser@control.server.com 'cat >> .ssh/authorized_keys'
-- echo "Host control" >> config
+- echo "Host control.server.com" >> config
 - echo "Hostname control.server.com" >> config
 - echo "IdentityFile ~/.ssh/myserver.rsa" >> config
 
