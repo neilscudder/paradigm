@@ -96,6 +96,7 @@ main() {
     fi
 }
 
+
 logEntry(){
     echo "$(date) ${PLAYNODE} - ${1}" >> $LOGFILE
 }
@@ -116,10 +117,12 @@ getPortalias() {
     "${portCmd}" \
     2>&1 )
     # TODO: Below needs testing
-    if [ $? -eq 0 ]; then
-        establishTunnel ${portalias} "${pidFile}"
+    if [ -z $portalias ]; then
+	logEntry "EE - Portalias not set. Connection failed or playnode not found."
+	exit 1
     else
-        logEntry "EE - Portalias not set. Ssh retrieval failed."
+	logEntry "II - Portalias is ${portalias}"
+	establishTunnel ${portalias} "${pidFile}"
     fi
 }
 
