@@ -1,6 +1,6 @@
 # paradigm
 
-Access services on client machines in remote networks as though they are on your server's localhost. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run from the root crontab once every minute. <strong>The server side component is not here yet. You will have to manually create the flat file.</strong>
+Access services on client machines in remote networks as though they are on your server's localhost. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run once every minute by a user with server credentials. <strong>The server side component is not here yet. You will have to manually create the flat file.</strong>
 
 By consolidating the local services of many remote clients on the server, commands may be issued and data retrieved quickly, without having to restablish connection and authenticate each time. This facilitates highly responsive server-side control of local services from a WAN connection, without having to configure local networks. For example, a mobile web app to control music can run on a public web server to control a headless music player on the local network. This is a more simple (for the user), robust and reliable method.
 
@@ -17,6 +17,17 @@ This is my first open-source software project.
   <li>Playnode - Name arbitrarily assigned to group services together. Usually the hostname of the client machine.</li>
   <li>Portalias - Server-assigned port mapped to the reverse tunnel. This value is retrieved from the server-side flat file before each tunnel is established.</li>
 </ul>
+
+Setup ssh-keys for authentication: (http://www.rebol.com/docs/ssh-auto-login.html)
+- cd ~/.ssh
+- on the playnode, run ssh-keygen -t rsa -b 4096 -C "jailedUser@control.server.com" subsituting your own server and username
+- save the files as control_rsa
+- enter no passphrase
+- ssh jailedUser@control.server.com 'mkdir .ssh'
+- cat control_rsa.pub | ssh jailedUser@control.server.com 'cat >> .ssh/authorized_keys'
+- echo "Host control" >> config
+- echo "Hostname control.server.com" >> config
+- echo "IdentityFile ~/.ssh/myserver.rsa" >> config
 
 Uses a server-side flat file to store portaliases to simplify connecting and provide access to multiple services on multiple nodes. Each node is able to forward as many ports as required.
 

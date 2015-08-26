@@ -1,6 +1,8 @@
 #!/bin/sh
 
-# PARADIGM 0.4.1
+# PARADIGM 0.5.0
+# Changelog: Deprecated sshpass, now requires external key authentication.
+
 # Checks for existing ssh tunnels and initiates reverse port-forwarding.
 # Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
@@ -31,8 +33,6 @@ Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
     Print this usage text.
 -u 
     User account on server. Default=paradigm
--p 
-    Server account password 
 -P 
     SERVERLISTENINGPORT default=22
 
@@ -44,8 +44,8 @@ Where dummy is the playnode name, and 32767 is the server local port
 A server-side script registers new playnodes to new ports in this file.
 
 Examples: 
-    paradigm -u user -p password PlaynodeName Shell 22 control.server.com
-    paradigm -u user -p password PlaynodeName MPD 6600 control.server.com
+    paradigm PlaynodeName Shell 22 control.server.com
+    paradigm -u user -P 443 -l /var/lib/paradigm/log.paradigm PlaynodeName MPD 6600 control.server.com
 
 EOF
 }
@@ -56,7 +56,7 @@ OPTIND=1
 CONTROLUSER=""
 CONTROLPASS=""
 
-while getopts "hl:u:p:P:" opt; do
+while getopts "hl:u:P:" opt; do
     case "$opt" in
     h)
         showHelp
@@ -68,9 +68,6 @@ while getopts "hl:u:p:P:" opt; do
     u)  
         readonly CONTROLUSER="$OPTARG"
         ;;
-    p)  
-        readonly CONTROLPASS="$OPTARG"
-        ;;
     P)  
         readonly SERVERLISTENINGPORT=$OPTARG
         ;;
@@ -78,15 +75,15 @@ while getopts "hl:u:p:P:" opt; do
 done
 shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
-#echo "CONTROLUSER=$CONTROLUSER, CONTROLPASS=$CONTROLPASS, Leftovers: $@"
 
 readonly PLAYNODE="$1"
 readonly SERVICENAME="$2"
 readonly SERVICEPORT=$3
 readonly CONTROLSERVER="$4"
-# Set default if not already
-readonly SERVERLISTENINGPORT=42
-readonly LOGFILE="/var/lib/paradigm/log.paradigm"
+# Set defaults if not already
+if [ -z ${CONTROLUSER+x} ]; then readonly CONTROLUSER="paradigm"; fi
+if [ -z ${SERVERLISTENINGPORT+x} ]; then readonly SERVERLISTENINGPORT=42; fi
+if [ -z ${LOGFILE+x} ]; then readonly LOGFILE="/var/lib/paradigm/log.paradigm"; fi
 
 
 main() {
@@ -116,16 +113,15 @@ getPortalias() {
     logEntry "II - getPortalias ${SERVICENAME}."
     local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
     # Query remote server for remote ports to use for forwarding
-    local portalias=$(/usr/bin/sshpass \
-        -p${CONTROLPASS} \
-        /usr/bin/ssh \
-        -q \
-        -p ${SERVERLISTENINGPORT} \
-        -o StrictHostKeyChecking=no \
-        -o ControlMaster=no \
-        ${CONTROLUSER}@${CONTROLSERVER} \
-        "${portCmd}" \
-        2>&1 )
+    local portalias=$(
+    /usr/bin/ssh \
+    -q \
+    -p ${SERVERLISTENINGPORT} \
+    -o StrictHostKeyChecking=no \
+    -o ControlMaster=no \
+    ${CONTROLUSER}@${CONTROLSERVER} \
+    "${portCmd}" \
+    2>&1 )
     # TODO: Below does not work. Exit code always 0, probably sshpass wrapper overrides.
     # TODO: Improve error handling for portalias retrieval
     # Below code may work if sshpass removed, key-based auth used instead
@@ -150,30 +146,31 @@ establishTunnel() {
     fi
     
     # Forward $SERVICEPORT over remote $portalias, using $SERVERLISTENINGPORT outbound
-    /usr/bin/sshpass \
-        -p${CONTROLPASS} \
-        /usr/bin/ssh \
-        -q \
-        -p ${SERVERLISTENINGPORT} \
-        -o StrictHostKeyChecking=no \
-        -o ServerAliveCountMax=2 \
-        -o ControlMaster=no \
-        -o ExitOnForwardFailure=yes \
-        -o TCPKeepAlive=yes \
-        -o ServerAliveInterval=45 \
-        -N \
-        -R ${portalias}:localhost:${SERVICEPORT} \
-        ${CONTROLUSER}@${CONTROLSERVER} & \
+    /usr/bin/ssh \
+    -q \
+    -p ${SERVERLISTENINGPORT} \
+    -o StrictHostKeyChecking=no \
+    -o ServerAliveCountMax=2 \
+    -o ControlMaster=no \
+    -o ExitOnForwardFailure=yes \
+    -o TCPKeepAlive=yes \
+    -o ServerAliveInterval=45 \
+    -N \
+    -R ${portalias}:localhost:${SERVICEPORT} \
+    ${CONTROLUSER}@${CONTROLSERVER} & \
     echo $! > "${pidFile}"
 }
 
 
-
-if [ $# -lt 2 ]; then
+# This script requires at least 4 arguments to operate.
+# Display usage ifno if insufficient CLI args.
+if [ $# -lt 4 ]; then
     showHelp
     exit 1
 fi
 
 main # Call the main function once to start
+
+echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
 
 exit 0
