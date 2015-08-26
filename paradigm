@@ -42,10 +42,6 @@ EOF
 # Getopts example from http://stackoverflow.com/a/14203146
 # Reset this POSIX variable in case getopts has been used previously in the shell.
 OPTIND=1
-# Do I need to?:     
-CONTROLUSER=""
-CONTROLPASS=""
-
 while getopts "hl:u:P:" opt; do
     case "$opt" in
     h)
@@ -72,6 +68,7 @@ readonly SERVICENAME="$2"
 readonly SERVICEPORT=$3
 readonly CONTROLSERVER="$4"
 # Set defaults if not already
+# example from http://stackoverflow.com/a/13864829/5045643
 if [ -z ${CONTROLUSER+x} ]; then readonly CONTROLUSER="paradigm"; fi
 if [ -z ${SERVERLISTENINGPORT+x} ]; then readonly SERVERLISTENINGPORT=42; fi
 if [ -z ${LOGFILE+x} ]; then readonly LOGFILE="/var/lib/paradigm/log.paradigm"; fi
