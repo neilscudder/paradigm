@@ -80,20 +80,23 @@ if [ -z ${LOGFILE+x} ]; then readonly LOGFILE="$HOME/log.paradigm"; fi
 #==========# CALLED FROM END OF SCRIPT #==========#
 main() {
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
+  # Is there evidence that we've already started a tunnel?
   if [ -f ${pidFile} ]; then
-    logEntry "II - Pid file found for ${SERVICENAME}"
+    logEntry "II - ${pidFile} found."
     local pid=$(cat ${pidFile})
+    # Is the process specified in the pidile found running?
     if kill -0 $pid > /dev/null 2>&1; then
       logEntry "II - Tunnel ${pid} found running (${SERVICENAME})."
     else
       logEntry "EE - Tunnel ${pid} not found in process list (${SERVICENAME})."
       rm ${pidFile}
-      getPortalias ${SERVICENAME} ${pidFile}
-    fi
-  else
-      logEntry "WW - Pid file not found for ${SERVICENAME}."
       portalias=$(getPortalias ${SERVICENAME} ${pidFile})
       establishTunnel ${portalias} "${pidFile}"
+    fi
+  else
+    logEntry "WW - ${pidFile} not found for ${SERVICENAME}."
+    portalias=$(getPortalias ${SERVICENAME} ${pidFile})
+    establishTunnel ${portalias} "${pidFile}"
   fi
 }
 
@@ -117,7 +120,7 @@ getPortalias() {
     ${CONTROLUSER}@${CONTROLSERVER} \
     "${portCmd}" \
   2>&1 )
-  # TODO: Below needs testing
+  # If the portalias value is empty then something is wrong.
   if [ -z $portalias ]; then
     logEntry "EE - Portalias not set. Connection failed or playnode not found."
     exit 1
@@ -130,15 +133,15 @@ getPortalias() {
 
 establishTunnel() {
   if [ $# -eq 2 ]; then
-      local portalias="$1"
-      local pidFile="$2"
-      logEntry "II - Portalias ${portalias} being used for local ${SERVICEPORT} ${pidFile}"
+    local portalias="$1"
+    local pidFile="$2"
+    logEntry "II - Portalias ${portalias} being used for local ${SERVICEPORT} ${pidFile}"
   else
-      local portalias="NOTSET"
-      local pidFile="$1"
-      logEntry "EE - Number of args is wrong. getPortalias() failed. ${pidFile}"
-      # TODO Considering how serious an error this is, a failover should take effect.
-      return
+    local portalias="NOTSET"
+    local pidFile="$1"
+    logEntry "EE - Number of args is wrong. getPortalias() failed. ${pidFile}"
+    # TODO Considering how serious an error this is, a failover should take effect.
+    return
   fi
   
   # Forward $SERVICEPORT over remote $portalias, using $SERVERLISTENINGPORT outbound
