@@ -12,8 +12,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-showHelp(){
+#==========# THIS IS AT THE TOP FOR YOU TO READ FIRST #==========#
+showHelp() {
     cat << EOF
 Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
@@ -38,6 +38,8 @@ Examples:
 EOF
 }
 
+#==========# PARSE OPTIONS FROM USER INPUT #==========#
+# Getopts example from http://stackoverflow.com/a/14203146
 # Reset this POSIX variable in case getopts has been used previously in the shell.
 OPTIND=1
 # Do I need to?:     
@@ -64,6 +66,7 @@ done
 shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
 
+#==========# SET GLOBALS AND DEFAULTS #==========#
 readonly PLAYNODE="$1"
 readonly SERVICENAME="$2"
 readonly SERVICEPORT=$3
@@ -73,7 +76,7 @@ if [ -z ${CONTROLUSER+x} ]; then readonly CONTROLUSER="paradigm"; fi
 if [ -z ${SERVERLISTENINGPORT+x} ]; then readonly SERVERLISTENINGPORT=42; fi
 if [ -z ${LOGFILE+x} ]; then readonly LOGFILE="/var/lib/paradigm/log.paradigm"; fi
 
-
+#==========# CALLED FROM END OF SCRIPT #==========#
 main() {
     local pidFile=/tmp/paradigm-${SERVICENAME}.pid
     if [ -f ${pidFile} ]; then
@@ -110,9 +113,7 @@ getPortalias() {
     ${CONTROLUSER}@${CONTROLSERVER} \
     "${portCmd}" \
     2>&1 )
-    # TODO: Below does not work. Exit code always 0, probably sshpass wrapper overrides.
-    # TODO: Improve error handling for portalias retrieval
-    # Below code may work if sshpass removed, key-based auth used instead
+    # TODO: Below needs testing
     if [ $? -eq 0 ]; then
         establishTunnel ${portalias} "${pidFile}"
     else
