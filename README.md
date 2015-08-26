@@ -18,6 +18,17 @@ This is my first open-source software project.
   <li>Portalias - Server-assigned port mapped to the reverse tunnel. This value is retrieved from the server-side flat file before each tunnel is established.</li>
 </ul>
 
+Setup ssh-keys for authentication: (http://www.rebol.com/docs/ssh-auto-login.html)
+- cd ~/.ssh
+- on the playnode, run ssh-keygen -t rsa -b 4096 -C "jailedUser@control.server.com" subsituting your own server and username
+- save the files as control_rsa
+- enter no passphrase
+- ssh jailedUser@control.server.com 'mkdir .ssh'
+- cat control_rsa.pub | ssh jailedUser@control.server.com 'cat >> .ssh/authorized_keys'
+- echo "Host control" >> config
+- echo "Hostname control.server.com" >> config
+- echo "IdentityFile ~/.ssh/myserver.rsa" >> config
+
 Uses a server-side flat file to store portaliases to simplify connecting and provide access to multiple services on multiple nodes. Each node is able to forward as many ports as required.
 
 In practice this is useful to manage a fleet of headless embedded media players such as digital signage in retail locations with poor quality computer networks. Remote accessibility to all forwarded service ports persists with minimal network requirements: access to one server over one port.
