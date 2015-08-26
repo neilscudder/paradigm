@@ -33,8 +33,6 @@ Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
     Print this usage text.
 -u 
     User account on server. Default=paradigm
--p 
-    Server account password 
 -P 
     SERVERLISTENINGPORT default=22
 
@@ -46,8 +44,8 @@ Where dummy is the playnode name, and 32767 is the server local port
 A server-side script registers new playnodes to new ports in this file.
 
 Examples: 
-    paradigm -u user -p password PlaynodeName Shell 22 control.server.com
-    paradigm -u user -p password PlaynodeName MPD 6600 control.server.com
+    paradigm PlaynodeName Shell 22 control.server.com
+    paradigm -u user -P 443 -l /var/lib/paradigm/log.paradigm PlaynodeName MPD 6600 control.server.com
 
 EOF
 }
@@ -77,7 +75,6 @@ while getopts "hl:u:P:" opt; do
 done
 shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
-#echo "CONTROLUSER=$CONTROLUSER, CONTROLPASS=$CONTROLPASS, Leftovers: $@"
 
 readonly PLAYNODE="$1"
 readonly SERVICENAME="$2"
