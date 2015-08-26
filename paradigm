@@ -80,10 +80,10 @@ readonly PLAYNODE="$1"
 readonly SERVICENAME="$2"
 readonly SERVICEPORT=$3
 readonly CONTROLSERVER="$4"
-# Set default if not already
-readonly CONTROLUSER="paradigm"
-readonly SERVERLISTENINGPORT=42
-readonly LOGFILE="/var/lib/paradigm/log.paradigm"
+# Set defaults if not already
+if [ -z ${CONTROLUSER+x} ]; then readonly CONTROLUSER="paradigm"; fi
+if [ -z ${SERVERLISTENINGPORT+x} ]; then readonly SERVERLISTENINGPORT=42; fi
+if [ -z ${LOGFILE+x} ]; then readonly LOGFILE="/var/lib/paradigm/log.paradigm"; fi
 
 
 main() {
