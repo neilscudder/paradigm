@@ -16,9 +16,10 @@
 #==========# THIS IS AT THE TOP FOR YOU TO READ FIRST #==========#
 showHelp() {
   cat << EOF
+
 Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
--h, ?
+-h
   Print this usage text.
 -u 
   User account on server. Default=paradigm
@@ -115,7 +116,6 @@ getPortalias() {
     /usr/bin/ssh \
     -q \
     -p ${SERVERLISTENINGPORT} \
-    -o StrictHostKeyChecking=no \
     -o ControlMaster=no \
     ${CONTROLUSER}@${CONTROLSERVER} \
     "${portCmd}" \
@@ -148,12 +148,10 @@ establishTunnel() {
   /usr/bin/ssh \
   -q \
   -p ${SERVERLISTENINGPORT} \
-  -o StrictHostKeyChecking=no \
   -o ServerAliveCountMax=2 \
+  -o ServerAliveInterval=45 \
   -o ControlMaster=no \
   -o ExitOnForwardFailure=yes \
-  -o TCPKeepAlive=yes \
-  -o ServerAliveInterval=45 \
   -N \
   -R ${portalias}:localhost:${SERVICEPORT} \
   ${CONTROLUSER}@${CONTROLSERVER} & \
