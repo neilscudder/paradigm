@@ -71,7 +71,7 @@ readonly CONTROLSERVER="$4"
 # example from http://stackoverflow.com/a/13864829/5045643
 if [ -z ${CONTROLUSER+x} ]; then readonly CONTROLUSER="paradigm"; fi
 if [ -z ${SERVERLISTENINGPORT+x} ]; then readonly SERVERLISTENINGPORT=22; fi
-if [ -z ${LOGFILE+x} ]; then readonly LOGFILE="~/log.paradigm"; fi
+if [ -z ${LOGFILE+x} ]; then readonly LOGFILE="$HOME/log.paradigm"; fi
 
 #==========# CALLED FROM END OF SCRIPT #==========#
 main() {
