@@ -12,6 +12,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 #==========# THIS IS AT THE TOP FOR YOU TO READ FIRST #==========#
 showHelp() {
     cat << EOF
@@ -38,6 +39,7 @@ Examples:
 EOF
 }
 
+
 #==========# PARSE OPTIONS FROM USER INPUT #==========#
 # Getopts example from http://stackoverflow.com/a/14203146
 # Reset this POSIX variable in case getopts has been used previously in the shell.
@@ -62,6 +64,7 @@ done
 shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
 
+
 #==========# SET GLOBALS AND DEFAULTS #==========#
 readonly PLAYNODE="$1"
 readonly SERVICENAME="$2"
@@ -72,6 +75,7 @@ readonly CONTROLSERVER="$4"
 if [ -z ${CONTROLUSER+x} ]; then readonly CONTROLUSER="paradigm"; fi
 if [ -z ${SERVERLISTENINGPORT+x} ]; then readonly SERVERLISTENINGPORT=22; fi
 if [ -z ${LOGFILE+x} ]; then readonly LOGFILE="$HOME/log.paradigm"; fi
+
 
 #==========# CALLED FROM END OF SCRIPT #==========#
 main() {
@@ -96,6 +100,7 @@ logEntry(){
     echo "$(date) ${PLAYNODE} - ${1}" >> $LOGFILE
 }
 
+
 getPortalias() {
     local pidFile=$2
     logEntry "II - getPortalias ${SERVICENAME}."
@@ -117,6 +122,7 @@ getPortalias() {
         logEntry "EE - Portalias not set. Ssh retrieval failed."
     fi
 }
+
 
 establishTunnel() {
     if [ $# -eq 2 ]; then
