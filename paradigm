@@ -35,9 +35,10 @@ logIt(){
 
 
 getPortalias() {
-  argCounter 1 $# $FUNCNAME
-  local pidFile=$1
-  local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
+  local portCmd="cat\
+    'portalias-${SERVICENAME}' \
+    | grep '^${PLAYNODE}' \
+    | /usr/bin/cut -d^ -f2"
   local portalias=$(
     /usr/bin/ssh \
     -q \
@@ -57,7 +58,6 @@ getPortalias() {
 
 establishTunnel() {
   argCounter 2 $# $FUNCNAME
-  # Forward $SERVICEPORT over remote $portalias, using $SERVERPORT outbound
   /usr/bin/ssh \
   -q \
   -p ${SERVERPORT} \
@@ -78,11 +78,9 @@ establishProxy() {
     /usr/bin/ssh \
     -q \
     -p ${SERVERPORT} \
-    -o StrictHostKeyChecking=no \
     -o ServerAliveCountMax=2 \
     -o ControlMaster=no \
     -o ExitOnForwardFailure=yes \
-    -o TCPKeepAlive=yes \
     -o ServerAliveInterval=45 \
     -N \
     -D ${SERVICEPORT} \
@@ -92,7 +90,7 @@ establishProxy() {
 
 
 main() {
-  getOptions
+  #getOptions
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
   if [ -f ${pidFile} ]; then
     logIt I "${pidFile} found."
@@ -149,7 +147,7 @@ Examples:
 EOF
 }
 
-getOptions() {
+#getOptions() {
 # GET USER OPTIONS
 # http://stackoverflow.com/a/14203146
 OPTIND=1
@@ -187,7 +185,7 @@ readonly PLAYNODE="$1"
 readonly SERVICENAME="$2"
 readonly SERVICEPORT=$3
 readonly CONTROLSERVER="$4"
-}
+#}
 
 # Call the main function once to start
 main 
