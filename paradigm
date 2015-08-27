@@ -13,7 +13,7 @@ argCounter() {
 
 logIt(){
   argCounter 2 $# $FUNCNAME
-  a="$(date) ${PLAYNODE} - "
+  a="$(date) ${PLAYNODE} - ${SERVICENAME} - "
   case $1 in
     I)
       b="${a}II"
@@ -35,7 +35,7 @@ logIt(){
 getPortalias() {
   argCounter 1 $# $FUNCNAME
   local pidFile=$1
-  logIt I "getPortalias ${SERVICENAME}."
+  logIt I "$FUNCNAME"
   local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
   local portalias=$(
     /usr/bin/ssh \
@@ -56,6 +56,7 @@ getPortalias() {
 
 establishTunnel() {
   argCounter 2 $# $FUNCNAME
+  logIt I "$FUNCNAME"
   # Forward $SERVICEPORT over remote $portalias, using $SERVERPORT outbound
   /usr/bin/ssh \
   -q \
@@ -74,7 +75,7 @@ establishTunnel() {
 establishProxy() {
     argCounter 1 $# $FUNCNAME
     local pidFile=$1
-    logIt I "establishProxy ${SERVICENAME}."
+    logIt I "$FUNCNAME"
     /usr/bin/ssh \
     -q \
     -p ${SERVERPORT} \
@@ -97,9 +98,9 @@ main() {
     logIt I "${pidFile} found."
     local pid=$(cat ${pidFile})
     if kill -0 $pid > /dev/null 2>&1; then
-      logIt I "Tunnel ${pid} found running (${SERVICENAME})."
+      logIt I "Tunnel ${pid} found running"
     else
-      logIt W "Tunnel ${pid} not found in process list (${SERVICENAME})."
+      logIt W "Tunnel ${pid} not found in process list"
       rm ${pidFile}
       if [ $PROXYMODE ]; then
         establishProxy "${pidFile}"
@@ -112,7 +113,7 @@ main() {
     if [ $PROXYMODE ]; then
       establishProxy "${pidFile}"
     else
-      logIt W "${pidFile} not found for ${SERVICENAME}."
+      logIt W "${pidFile} not found"
       portalias=$(getPortalias ${pidFile})
       establishTunnel ${portalias} "${pidFile}"
     fi
