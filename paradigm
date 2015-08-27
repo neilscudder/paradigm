@@ -7,6 +7,8 @@ argCounter() {
   correctNumber=$1; actualNumber=$2; function=$3
   if [ $actualNumber -lt $correctNumber ]; then
     logIt E "$function did not receive enough arguments."
+  else
+    logIt I "$function"
   fi
 }
 
@@ -35,7 +37,6 @@ logIt(){
 getPortalias() {
   argCounter 1 $# $FUNCNAME
   local pidFile=$1
-  logIt I "$FUNCNAME"
   local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
   local portalias=$(
     /usr/bin/ssh \
@@ -56,7 +57,6 @@ getPortalias() {
 
 establishTunnel() {
   argCounter 2 $# $FUNCNAME
-  logIt I "$FUNCNAME"
   # Forward $SERVICEPORT over remote $portalias, using $SERVERPORT outbound
   /usr/bin/ssh \
   -q \
@@ -75,7 +75,6 @@ establishTunnel() {
 establishProxy() {
     argCounter 1 $# $FUNCNAME
     local pidFile=$1
-    logIt I "$FUNCNAME"
     /usr/bin/ssh \
     -q \
     -p ${SERVERPORT} \
