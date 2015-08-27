@@ -19,7 +19,7 @@ while getopts "hl:u:p:X" opt; do
     readonly CONTROLUSER="$OPTARG"
     ;;
   p)  
-    readonly SERVERLISTENINGPORT=$OPTARG
+    readonly SERVERPORT=$OPTARG
     ;;
   X)  
     readonly PROXYMODE=1
@@ -36,7 +36,7 @@ readonly SERVICEPORT=$3
 readonly CONTROLSERVER="$4"
 # from http://stackoverflow.com/a/13864829/5045643
 [ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
-[ -z ${SERVERLISTENINGPORT+x} ] && readonly SERVERLISTENINGPORT=22
+[ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
 [ -z ${LOGFILE+x} ] && readonly LOGFILE="$HOME/log.paradigm"
 
 
@@ -81,7 +81,7 @@ getPortalias() {
   local portalias=$(
     /usr/bin/ssh \
     -q \
-    -p ${SERVERLISTENINGPORT} \
+    -p ${SERVERPORT} \
     -o ControlMaster=no \
     ${CONTROLUSER}@${CONTROLSERVER} \
     "${portCmd}" \
@@ -109,10 +109,10 @@ establishTunnel() {
     return
   fi
   
-  # Forward $SERVICEPORT over remote $portalias, using $SERVERLISTENINGPORT outbound
+  # Forward $SERVICEPORT over remote $portalias, using $SERVERPORT outbound
   /usr/bin/ssh \
   -q \
-  -p ${SERVERLISTENINGPORT} \
+  -p ${SERVERPORT} \
   -o ServerAliveCountMax=2 \
   -o ServerAliveInterval=45 \
   -o ControlMaster=no \
@@ -129,7 +129,7 @@ establishProxy() {
     logEntry "establishProxy ${SERVICENAME}."
     /usr/bin/ssh \
     -q \
-    -p ${SERVERLISTENINGPORT} \
+    -p ${SERVERPORT} \
     -o StrictHostKeyChecking=no \
     -o ServerAliveCountMax=2 \
     -o ControlMaster=no \
