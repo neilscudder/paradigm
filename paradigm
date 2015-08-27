@@ -53,7 +53,7 @@ main() {
       if [ $PROXYMODE -eq 1 ]; then
         establishProxy "${pidFile}"
       else
-        portalias=$(getPortalias ${SERVICENAME} ${pidFile})
+        portalias=$(getPortalias ${pidFile})
         establishTunnel ${portalias} "${pidFile}"
       fi
     fi
@@ -62,7 +62,7 @@ main() {
       establishProxy "${pidFile}"
     else
       logEntry "WW - ${pidFile} not found for ${SERVICENAME}."
-      portalias=$(getPortalias ${SERVICENAME} ${pidFile})
+      portalias=$(getPortalias ${pidFile})
       establishTunnel ${portalias} "${pidFile}"
     fi
   fi
@@ -75,7 +75,7 @@ logEntry(){
 
 
 getPortalias() {
-  local pidFile=$2
+  local pidFile=$1
   logEntry "II - getPortalias ${SERVICENAME}."
   local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
   local portalias=$(
