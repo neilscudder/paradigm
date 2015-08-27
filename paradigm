@@ -88,10 +88,16 @@ main() {
 argCounter() {
   correctNumber=$1; actualNumber=$2; function=$3
   if [ $actualNumber -lt $correctNumber ]; then
-    logIt E "$function did not receive enough arguments."
+    error_exit "$function did not receive enough arguments."
   else
     logIt I "$function"
   fi
+}
+
+# http://linuxcommand.org/wss0150.php
+error_exit() {
+  logIt E "${1:-"Unknown Error"}"
+  exit 1
 }
 
 
@@ -108,8 +114,7 @@ logIt() {
     E)
       b="${a}EE"
       echo "${b} - ${2}" >> $LOGFILE
-      echo "${b} - ${2}"
-      exit 1
+      echo "${b} - ${2}" 1>&2
     ;;
   esac
   echo "${b} - ${2}" >> $LOGFILE
@@ -130,7 +135,7 @@ getPortalias() {
     "${portCmd}" \
   2>&1 )
   if [ -z $portalias ]; then
-    logIt E "Portalias not set. \
+    error_exit "Portalias not set. \
       Connection failed or playnode not found."
   else
     logIt I "Portalias is ${portalias}"
