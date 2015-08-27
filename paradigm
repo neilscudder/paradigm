@@ -4,7 +4,7 @@
 
 readonly PROGNAME=$(basename $0)
 readonly PROGDIR=$(readlink -m $(dirname $0))
-readonly ARGS="$@"
+#readonly ARGS="${@}"
 
 argCounter() {
   correctNumber=$1; actualNumber=$2; function=$3
@@ -16,8 +16,8 @@ argCounter() {
 }
 
 
-logIt(){
-  argCounter 2 $# $FUNCNAME
+logIt() {
+#  argCounter 2 $# $FUNCNAME
   a="$(date) ${PLAYNODE} - ${SERVICENAME} - "
   case $1 in
     I)
@@ -94,7 +94,6 @@ establishProxy() {
 
 
 main() {
-  getOptions $ARGS
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
   if [ -f ${pidFile} ]; then
     logIt I "${pidFile} found."
@@ -107,7 +106,7 @@ main() {
       if [ $PROXYMODE ]; then
         establishProxy "${pidFile}"
       else
-        portalias=$(getPortalias ${pidFile})
+        portalias=$(getPortalias)
         establishTunnel ${portalias} "${pidFile}"
       fi
     fi
@@ -116,7 +115,7 @@ main() {
       establishProxy "${pidFile}"
     else
       logIt W "${pidFile} not found"
-      portalias=$(getPortalias ${pidFile})
+      portalias=$(getPortalias)
       establishTunnel ${portalias} "${pidFile}"
     fi
   fi
@@ -124,6 +123,7 @@ main() {
 
 
 showHelp() {
+  logIt I "$FUNCNAME"
   cat << EOF
 
 Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
@@ -184,16 +184,17 @@ getOptions() {
   [ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
   [ -z ${LOGFILE+x} ] && readonly LOGFILE="$HOME/log.paradigm"
   
-  argCounter 4 $# $FUNCNAME
+#  argCounter 4 $# $FUNCNAME
   
   readonly PLAYNODE="$1"
   readonly SERVICENAME="$2"
   readonly SERVICEPORT=$3
   readonly CONTROLSERVER="$4"
+  main
 }
 
 # Call the main function once to start
-main
+getOptions $@
 
 echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
 exit 0
