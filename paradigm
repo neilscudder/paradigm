@@ -89,7 +89,7 @@ argCounter() {
 
 
 logIt() {
-  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set, exiting." >> $LOGFILE; exit 1
+  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
   a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
   case $1 in
     I)
