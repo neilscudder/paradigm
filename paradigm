@@ -101,7 +101,7 @@ main() {
     else
       logIt W "Tunnel ${pid} not found in process list (${SERVICENAME})."
       rm ${pidFile}
-      if [ $PROXYMODE -eq 1 ]; then
+      if [ $PROXYMODE ]; then
         establishProxy "${pidFile}"
       else
         portalias=$(getPortalias ${pidFile})
@@ -109,7 +109,7 @@ main() {
       fi
     fi
   else
-    if [ $PROXYMODE -eq 1 ]; then
+    if [ $PROXYMODE ]; then
       establishProxy "${pidFile}"
     else
       logIt W "${pidFile} not found for ${SERVICENAME}."
@@ -152,7 +152,6 @@ EOF
 # GET USER OPTIONS
 # http://stackoverflow.com/a/14203146
 OPTIND=1
-PROXYMODE=0
 while getopts "hl:u:p:X" opt; do
   case "$opt" in
   h)
