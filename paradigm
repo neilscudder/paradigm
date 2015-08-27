@@ -97,7 +97,7 @@ main() {
     else
       logEntry "EE - Tunnel ${pid} not found in process list (${SERVICENAME})."
       rm ${pidFile}
-      if [ $PROXYMODE ]; then
+      if [ $PROXYMODE -eq 1 ]; then
         establishProxy "${pidFile}"
       else
         portalias=$(getPortalias ${SERVICENAME} ${pidFile})
@@ -105,7 +105,7 @@ main() {
       fi
     fi
   else
-    if [ $PROXYMODE ]; then
+    if [ $PROXYMODE -eq 1 ]; then
       establishProxy "${pidFile}"
     else
       logEntry "WW - ${pidFile} not found for ${SERVICENAME}."
