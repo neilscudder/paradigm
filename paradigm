@@ -2,6 +2,11 @@
 # PARADIGM 0.5.2 Copyright 2014 neil@neilscudder.com
 # GNU GPL <http://www.gnu.org/licenses/>.
 
+main() {
+  getOptions $@
+  tunnelCheck
+}
+
 
 getOptions() {
   # http://stackoverflow.com/a/14203146
@@ -51,8 +56,6 @@ getOptions() {
     readonly SERVICEPORT=23
     readonly CONTROLSERVER="playnode.ca"
   fi
-  
-  tunnelCheck
 }
 
 
@@ -208,7 +211,7 @@ EOF
 
 
 # Call the first function to start
-getOptions $@
+main $@
 
 echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
 exit 0
