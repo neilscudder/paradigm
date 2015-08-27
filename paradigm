@@ -13,7 +13,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#==========# THIS IS AT THE TOP FOR YOU TO READ FIRST #==========#
 showHelp() {
   cat << EOF
 
@@ -43,9 +42,7 @@ EOF
 }
 
 
-#==========# PARSE OPTIONS FROM USER INPUT #==========#
-# Getopts example from http://stackoverflow.com/a/14203146
-# Reset this POSIX variable in case getopts has been used previously in the shell.
+# http://stackoverflow.com/a/14203146
 OPTIND=1
 PROXYMODE=0
 while getopts "hl:u:P:X" opt; do
@@ -72,26 +69,21 @@ shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
 
 
-#==========# SET GLOBALS AND DEFAULTS #==========#
 readonly PLAYNODE="$1"
 readonly SERVICENAME="$2"
 readonly SERVICEPORT=$3
 readonly CONTROLSERVER="$4"
-# Set defaults if not already
-# example from http://stackoverflow.com/a/13864829/5045643
-if [ -z ${CONTROLUSER+x} ]; then readonly CONTROLUSER="paradigm"; fi
-if [ -z ${SERVERLISTENINGPORT+x} ]; then readonly SERVERLISTENINGPORT=22; fi
-if [ -z ${LOGFILE+x} ]; then readonly LOGFILE="$HOME/log.paradigm"; fi
+# from http://stackoverflow.com/a/13864829/5045643
+[ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
+[ -z ${SERVERLISTENINGPORT+x} ] && readonly SERVERLISTENINGPORT=22
+[ -z ${LOGFILE+x} ] && readonly LOGFILE="$HOME/log.paradigm"
 
 
-#==========# CALLED FROM END OF SCRIPT #==========#
 main() {
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-  # Is there evidence that we've already started a tunnel?
   if [ -f ${pidFile} ]; then
     logEntry "II - ${pidFile} found."
     local pid=$(cat ${pidFile})
-    # Is the process specified in the pidile found running?
     if kill -0 $pid > /dev/null 2>&1; then
       logEntry "II - Tunnel ${pid} found running (${SERVICENAME})."
     else
@@ -125,7 +117,6 @@ getPortalias() {
   local pidFile=$2
   logEntry "II - getPortalias ${SERVICENAME}."
   local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
-  # Query remote server for remote ports to use for forwarding
   local portalias=$(
     /usr/bin/ssh \
     -q \
@@ -134,7 +125,6 @@ getPortalias() {
     ${CONTROLUSER}@${CONTROLSERVER} \
     "${portCmd}" \
   2>&1 )
-  # If the portalias value is empty then something is wrong.
   if [ -z $portalias ]; then
     logEntry "EE - Portalias not set. Connection failed or playnode not found."
     exit 1
