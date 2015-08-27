@@ -29,6 +29,7 @@ done
 shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
 
+tester 4 $# BASE
 
 readonly PLAYNODE="$1"
 readonly SERVICENAME="$2"
@@ -70,6 +71,7 @@ main() {
 
 
 logIt(){
+  tester 2 $# $FUNCNAME
   case $1 in
     I)
       echo "$(date) ${PLAYNODE} - II - ${2}" >> $LOGFILE
@@ -85,6 +87,7 @@ logIt(){
 
 
 getPortalias() {
+  tester 1 $# $FUNCNAME
   local pidFile=$1
   logIt I "getPortalias ${SERVICENAME}."
   local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
@@ -107,18 +110,7 @@ getPortalias() {
 
 
 establishTunnel() {
-  if [ $# -eq 2 ]; then
-    local portalias="$1"
-    local pidFile="$2"
-    logIt I "Portalias ${portalias} being used for local ${SERVICEPORT} ${pidFile}"
-  else
-    local portalias="NOTSET"
-    local pidFile="$1"
-    logIt I "Number of args is wrong. getPortalias() failed. ${pidFile}"
-    # TODO Considering how serious an error this is, a failover should take effect.
-    return
-  fi
-  
+  tester 2 $# $FUNCNAME
   # Forward $SERVICEPORT over remote $portalias, using $SERVERPORT outbound
   /usr/bin/ssh \
   -q \
@@ -135,6 +127,7 @@ establishTunnel() {
 
 
 establishProxy() {
+    tester 1 $# $FUNCNAME
     local pidFile=$1
     logIt I "establishProxy ${SERVICENAME}."
     /usr/bin/ssh \
@@ -181,14 +174,12 @@ Examples:
 EOF
 }
 
-
-# This script requires at least 4 arguments to operate.
-# Display usage ifno if insufficient CLI args.
-if [ $# -lt 4 ]; then
-  showHelp
-  exit 1
-fi
-
+tester() {
+  if [ $2 -lt $1 ]; then
+    logIt E "$3 did not receive enough arguments."
+    exit 1
+  fi
+}
 
 main # Call the main function once to start
 
