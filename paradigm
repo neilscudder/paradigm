@@ -48,7 +48,8 @@ getPortalias() {
     "${portCmd}" \
   2>&1 )
   if [ -z $portalias ]; then
-    logIt E "Portalias not set. Connection failed or playnode not found."
+    logIt E "Portalias not set. \
+      Connection failed or playnode not found."
   else
     logIt I "Portalias is ${portalias}"
     echo "${portalias}"
@@ -133,16 +134,17 @@ Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
 -X 
   Proxy mode.
 
-A playnode is a name to define a group of service ports, usually the hostname.
+A playnode is a name to define a group of service ports,
+usually the client hostname.
 User account on remote server with shell access required.
 Server side flatfile is named portalias-SERVICENAME.
-Entries are formatted one playnode per line like this: dummy^32767
-Where dummy is the playnode name, and 32767 is the server local port
-A server-side script registers new playnodes to new ports in this file.
+Formatted one playnode per line like this: dummy^32767
+Where dummy is the playnode name, and 32767 is the portalias.
 
 Examples: 
   paradigm PlaynodeName Shell 22 control.server.com
-  paradigm -u user -p 443 -l /var/lib/paradigm/log.paradigm PlaynodeName MPD 6600 control.server.com
+  paradigm -u user -p 443 -l /var/lib/paradigm/log.paradigm \
+    PlaynodeName MPD 6600 control.server.com
 
 EOF
 }
