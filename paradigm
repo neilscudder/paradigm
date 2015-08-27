@@ -6,6 +6,78 @@ readonly PROGNAME=$(basename $0)
 readonly PROGDIR=$(readlink -m $(dirname $0))
 #readonly ARGS="${@}"
 
+
+getOptions() {
+  # http://stackoverflow.com/a/14203146
+  OPTIND=1
+  while getopts "hl:u:p:X" opt; do
+    case "$opt" in
+    h)
+      showHelp
+      exit 0
+      ;;
+    l)  
+      readonly LOGFILE="$OPTARG"
+      ;;
+    u)  
+      readonly CONTROLUSER="$OPTARG"
+      ;;
+    p)  
+      readonly SERVERPORT=$OPTARG
+      ;;
+    X)  
+      readonly PROXYMODE=1
+      ;;
+    esac
+  done
+  shift $((OPTIND-1))
+  [ "$1" = "--" ] && shift
+  
+  # from http://stackoverflow.com/a/13864829/5045643
+  [ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
+  [ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
+  [ -z ${LOGFILE+x} ] && readonly LOGFILE="$HOME/log.paradigm"
+  
+#  argCounter 4 $# $FUNCNAME
+  
+  readonly PLAYNODE="$1"
+  readonly SERVICENAME="$2"
+  readonly SERVICEPORT=$3
+  readonly CONTROLSERVER="$4"
+  
+  main
+}
+
+
+main() {
+  local pidFile=/tmp/paradigm-${SERVICENAME}.pid
+  if [ -f ${pidFile} ]; then
+    logIt I "${pidFile} found."
+    local pid=$(cat ${pidFile})
+    if kill -0 $pid > /dev/null 2>&1; then
+      logIt I "Tunnel ${pid} found running"
+    else
+      logIt W "Tunnel ${pid} not found in process list"
+      rm ${pidFile}
+      if [ $PROXYMODE ]; then
+        establishProxy "${pidFile}"
+      else
+        portalias=$(getPortalias)
+        establishTunnel ${portalias} "${pidFile}"
+      fi
+    fi
+  else
+    if [ $PROXYMODE ]; then
+      establishProxy "${pidFile}"
+    else
+      logIt W "${pidFile} not found"
+      portalias=$(getPortalias)
+      establishTunnel ${portalias} "${pidFile}"
+    fi
+  fi
+}
+
+
 argCounter() {
   correctNumber=$1; actualNumber=$2; function=$3
   if [ $actualNumber -lt $correctNumber ]; then
@@ -17,7 +89,7 @@ argCounter() {
 
 
 logIt() {
-#  argCounter 2 $# $FUNCNAME  # CRASHES
+  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set, exiting." >> $LOGFILE; exit 1
   a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
   case $1 in
     I)
@@ -93,37 +165,8 @@ establishProxy() {
 }
 
 
-main() {
-  local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-  if [ -f ${pidFile} ]; then
-    logIt I "${pidFile} found."
-    local pid=$(cat ${pidFile})
-    if kill -0 $pid > /dev/null 2>&1; then
-      logIt I "Tunnel ${pid} found running"
-    else
-      logIt W "Tunnel ${pid} not found in process list"
-      rm ${pidFile}
-      if [ $PROXYMODE ]; then
-        establishProxy "${pidFile}"
-      else
-        portalias=$(getPortalias)
-        establishTunnel ${portalias} "${pidFile}"
-      fi
-    fi
-  else
-    if [ $PROXYMODE ]; then
-      establishProxy "${pidFile}"
-    else
-      logIt W "${pidFile} not found"
-      portalias=$(getPortalias)
-      establishTunnel ${portalias} "${pidFile}"
-    fi
-  fi
-}
-
-
 showHelp() {
-  logIt I "$FUNCNAME"
+  #logIt I "$FUNCNAME"
   cat << EOF
 
 Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
@@ -147,53 +190,13 @@ Where dummy is the playnode name, and 32767 is the portalias.
 Examples: 
   paradigm PlaynodeName Shell 22 control.server.com
   paradigm -u user -p 443 -l /var/lib/paradigm/log.paradigm \
-    PlaynodeName MPD 6600 control.server.com
+PlaynodeName MPD 6600 control.server.com
 
 EOF
 }
 
-getOptions() {
-  # GET USER OPTIONS
-  # http://stackoverflow.com/a/14203146
-  OPTIND=1
-  while getopts "hl:u:p:X" opt; do
-    case "$opt" in
-    h)
-      showHelp
-      exit 0
-      ;;
-    l)  
-      readonly LOGFILE="$OPTARG"
-      ;;
-    u)  
-      readonly CONTROLUSER="$OPTARG"
-      ;;
-    p)  
-      readonly SERVERPORT=$OPTARG
-      ;;
-    X)  
-      readonly PROXYMODE=1
-      ;;
-    esac
-  done
-  shift $((OPTIND-1))
-  [ "$1" = "--" ] && shift
-  
-  # from http://stackoverflow.com/a/13864829/5045643
-  [ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
-  [ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
-  [ -z ${LOGFILE+x} ] && readonly LOGFILE="$HOME/log.paradigm"
-  
-#  argCounter 4 $# $FUNCNAME
-  
-  readonly PLAYNODE="$1"
-  readonly SERVICENAME="$2"
-  readonly SERVICEPORT=$3
-  readonly CONTROLSERVER="$4"
-  main
-}
 
-# Call the main function once to start
+# Call the first function to start
 getOptions $@
 
 echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
