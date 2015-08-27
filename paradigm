@@ -3,6 +3,92 @@
 # GNU GPL <http://www.gnu.org/licenses/>.
 
 
+argCounter() {
+  correctNumber=$1; actualNumber=$2; function=$3
+  if [ $actualNumber -lt $correctNumber ]; then
+    logIt E "$function did not receive enough arguments."
+    echo "Exiting because $function did not receive enough arguments."
+    exit 1
+  fi
+}
+
+
+logIt(){
+  argCounter 2 $# $FUNCNAME
+  case $1 in
+    I)
+      echo "$(date) ${PLAYNODE} - II - ${2}" >> $LOGFILE
+    ;;
+    W)
+      echo "$(date) ${PLAYNODE} - WW - ${2}" >> $LOGFILE
+    ;;
+    E)
+      echo "$(date) ${PLAYNODE} - EE - ${2}" >> $LOGFILE
+    ;;
+  esac
+}
+
+
+getPortalias() {
+  argCounter 1 $# $FUNCNAME
+  local pidFile=$1
+  logIt I "getPortalias ${SERVICENAME}."
+  local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
+  local portalias=$(
+    /usr/bin/ssh \
+    -q \
+    -p ${SERVERPORT} \
+    -o ControlMaster=no \
+    ${CONTROLUSER}@${CONTROLSERVER} \
+    "${portCmd}" \
+  2>&1 )
+  if [ -z $portalias ]; then
+    logIt E "Portalias not set. Connection failed or playnode not found."
+    exit 1
+  else
+    logIt I "Portalias is ${portalias}"
+    echo "${portalias}"
+  fi
+}
+
+
+establishTunnel() {
+  argCounter 2 $# $FUNCNAME
+  # Forward $SERVICEPORT over remote $portalias, using $SERVERPORT outbound
+  /usr/bin/ssh \
+  -q \
+  -p ${SERVERPORT} \
+  -o ServerAliveCountMax=2 \
+  -o ServerAliveInterval=45 \
+  -o ControlMaster=no \
+  -o ExitOnForwardFailure=yes \
+  -N \
+  -R ${portalias}:localhost:${SERVICEPORT} \
+  ${CONTROLUSER}@${CONTROLSERVER} & \
+  echo $! > "${pidFile}"
+}
+
+
+establishProxy() {
+    argCounter 1 $# $FUNCNAME
+    local pidFile=$1
+    logIt I "establishProxy ${SERVICENAME}."
+    /usr/bin/ssh \
+    -q \
+    -p ${SERVERPORT} \
+    -o StrictHostKeyChecking=no \
+    -o ServerAliveCountMax=2 \
+    -o ControlMaster=no \
+    -o ExitOnForwardFailure=yes \
+    -o TCPKeepAlive=yes \
+    -o ServerAliveInterval=45 \
+    -N \
+    -D ${SERVICEPORT} \
+    ${CONTROLUSER}@${CONTROLSERVER} & \
+    echo $! > ${pidFile} &
+}
+
+
 main() {
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
   if [ -f ${pidFile} ]; then
@@ -29,82 +115,6 @@ main() {
       establishTunnel ${portalias} "${pidFile}"
     fi
   fi
-}
-
-
-logIt(){
-  tester 2 $# $FUNCNAME
-  case $1 in
-    I)
-      echo "$(date) ${PLAYNODE} - II - ${2}" >> $LOGFILE
-    ;;
-    W)
-      echo "$(date) ${PLAYNODE} - WW - ${2}" >> $LOGFILE
-    ;;
-    E)
-      echo "$(date) ${PLAYNODE} - EE - ${2}" >> $LOGFILE
-    ;;
-  esac
-}
-
-
-getPortalias() {
-  tester 1 $# $FUNCNAME
-  local pidFile=$1
-  logIt I "getPortalias ${SERVICENAME}."
-  local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
-  local portalias=$(
-    /usr/bin/ssh \
-    -q \
-    -p ${SERVERPORT} \
-    -o ControlMaster=no \
-    ${CONTROLUSER}@${CONTROLSERVER} \
-    "${portCmd}" \
-  2>&1 )
-  if [ -z $portalias ]; then
-    logIt E "Portalias not set. Connection failed or playnode not found."
-    exit 1
-  else
-    logIt I "Portalias is ${portalias}"
-    echo "${portalias}"
-  fi
-}
-
-
-establishTunnel() {
-  tester 2 $# $FUNCNAME
-  # Forward $SERVICEPORT over remote $portalias, using $SERVERPORT outbound
-  /usr/bin/ssh \
-  -q \
-  -p ${SERVERPORT} \
-  -o ServerAliveCountMax=2 \
-  -o ServerAliveInterval=45 \
-  -o ControlMaster=no \
-  -o ExitOnForwardFailure=yes \
-  -N \
-  -R ${portalias}:localhost:${SERVICEPORT} \
-  ${CONTROLUSER}@${CONTROLSERVER} & \
-  echo $! > "${pidFile}"
-}
-
-
-establishProxy() {
-    tester 1 $# $FUNCNAME
-    local pidFile=$1
-    logIt I "establishProxy ${SERVICENAME}."
-    /usr/bin/ssh \
-    -q \
-    -p ${SERVERPORT} \
-    -o StrictHostKeyChecking=no \
-    -o ServerAliveCountMax=2 \
-    -o ControlMaster=no \
-    -o ExitOnForwardFailure=yes \
-    -o TCPKeepAlive=yes \
-    -o ServerAliveInterval=45 \
-    -N \
-    -D ${SERVICEPORT} \
-    ${CONTROLUSER}@${CONTROLSERVER} & \
-    echo $! > ${pidFile} &
 }
 
 
@@ -136,14 +146,8 @@ Examples:
 EOF
 }
 
-tester() {
-  if [ $2 -lt $1 ]; then
-    logIt E "$3 did not receive enough arguments."
-    exit 1
-  fi
-}
 
-# This is the first stuff that runs.
+# GET USER OPTIONS
 # http://stackoverflow.com/a/14203146
 OPTIND=1
 PROXYMODE=0
@@ -169,12 +173,13 @@ while getopts "hl:u:p:X" opt; do
 done
 shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
+
 # from http://stackoverflow.com/a/13864829/5045643
 [ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
 [ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
 [ -z ${LOGFILE+x} ] && readonly LOGFILE="$HOME/log.paradigm"
 
-tester 4 $# BASE
+argCounter 4 $# BASE
 
 readonly PLAYNODE="$1"
 readonly SERVICENAME="$2"
