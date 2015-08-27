@@ -2,7 +2,7 @@
 
 Access services on client machines in remote networks as though they are on your server's localhost. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run once every minute by a user with server credentials. <strong>The server side component is not here yet. You will have to manually create the flat file.</strong>
 
-Bear with me, I'm 38 and this is my first open-source software project.
+Bear with me, this is my first open-source software project.
 
 <h2>Definitions</h2>
 <ul>
