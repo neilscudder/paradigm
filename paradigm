@@ -60,23 +60,25 @@ getOptions() {
     readonly PLAYNODE="dummy"
     readonly SERVICENAME="Shell"
     readonly SERVICEPORT=23
-    readonly CONTROLSERVER="playnode.ca"
+    readonly CONTROLSERVER="control"
   fi
 }
 
 
 checkPid() {
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-  if [ -f $pidfile ]; then
+  if [ -f ${pidfile} ]; then
     local pid=$(cat ${pidFile})
+    logIt I "pid file found"
   else
     logIt W "pid file not found"
   fi
 
-  if [ $pid && kill -0 $pid > /dev/null 2>&1 ]; then
+  if kill -0 $pid > /dev/null 2>&1; then
     logIt I "Tunnel found running, ex(c)iting."
     exit 0
   else
+    rm -f ${pidfile}
     logIt W "pid not found running"
   fi
 }
