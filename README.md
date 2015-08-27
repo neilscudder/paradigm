@@ -14,12 +14,12 @@ Access services on client machines in remote networks as though they are on your
 
 
 <h2>Setup ssh-keys for authentication:</h2>
-- cd ~/.ssh
-- on the playnode, run ssh-keygen -t rsa -b 4096 -C "jailedUser@control.server.com" subsituting your own server and username
+- on the playnode, cd ~/.ssh
+- run ssh-keygen -t rsa -b 4096 -C "user@control.server.com"
 - save the files as control_rsa
 - enter no passphrase
-- ssh jailedUser@control.server.com 'mkdir .ssh'
-- cat control_rsa.pub | ssh jailedUser@control.server.com 'cat >> .ssh/authorized_keys'
+- ssh user@control.server.com 'mkdir .ssh'
+- cat control_rsa.pub | ssh user@control.server.com 'cat >> .ssh/authorized_keys'
 - echo "Host control.server.com" >> config
 - echo "Hostname control.server.com" >> config
 - echo "IdentityFile ~/.ssh/control_rsa" >> config
@@ -31,21 +31,15 @@ Access services on client machines in remote networks as though they are on your
 
 Paradigm uses a server-side flat file to store portaliases to simplify connecting and provide access to multiple services on multiple nodes. Each node is able to forward as many ports as required.
 
-File location: jailed user's home directory.
+File location: jailed user's home directory.<br/>
 File name syntax: portalias-SERVICENAME (i.e. ~/portalias-Shell)
 
+Syntax Example
 <pre>
 	Hegel^1044
 	Ricky^1025
 	Julian^1026
 	Barb^1027
-	Goethe^1028
-	Lucy^1029
-	Simon^1030
-	Horace^1031
-	Dummy^1032
-	Weirdo^1033
-	Locke^1034
 </pre>
 
 
