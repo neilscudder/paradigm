@@ -2,11 +2,6 @@
 # PARADIGM 0.5.2 Copyright 2014 neil@neilscudder.com
 # GNU GPL <http://www.gnu.org/licenses/>.
 
-readonly PROGNAME=$(basename $0)
-readonly PROGDIR=$(readlink -m $(dirname $0))
-#readonly ARGS="${@}"
-
-
 getOptions() {
   # http://stackoverflow.com/a/14203146
   OPTIND=1
@@ -135,8 +130,8 @@ getPortalias() {
 establishTunnel() {
   argCounter 2 $# $FUNCNAME
   /usr/bin/ssh \
-  -q \
   -p ${SERVERPORT} \
+  -q \
   -o ServerAliveCountMax=2 \
   -o ServerAliveInterval=45 \
   -o ControlMaster=no \
@@ -149,24 +144,23 @@ establishTunnel() {
 
 
 establishProxy() {
-    argCounter 1 $# $FUNCNAME
-    local pidFile=$1
-    /usr/bin/ssh \
-    -q \
-    -p ${SERVERPORT} \
-    -o ServerAliveCountMax=2 \
-    -o ControlMaster=no \
-    -o ExitOnForwardFailure=yes \
-    -o ServerAliveInterval=45 \
-    -N \
-    -D ${SERVICEPORT} \
-    ${CONTROLUSER}@${CONTROLSERVER} & \
-    echo $! > ${pidFile} &
+  argCounter 1 $# $FUNCNAME
+  local pidFile=$1
+  /usr/bin/ssh \
+  -p ${SERVERPORT} \
+  -q \
+  -o ServerAliveCountMax=2 \
+  -o ServerAliveInterval=45 \
+  -o ControlMaster=no \
+  -o ExitOnForwardFailure=yes \
+  -N \
+  -D ${SERVICEPORT} \
+  ${CONTROLUSER}@${CONTROLSERVER} & \
+  echo $! > ${pidFile} &
 }
 
 
 showHelp() {
-  #logIt I "$FUNCNAME"
   cat << EOF
 
 Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
