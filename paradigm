@@ -17,8 +17,8 @@ argCounter() {
 
 
 logIt() {
-#  argCounter 2 $# $FUNCNAME
-  a="$(date) ${PLAYNODE} - ${SERVICENAME} - "
+#  argCounter 2 $# $FUNCNAME  # CRASHES
+  a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
   case $1 in
     I)
       b="${a}II"
