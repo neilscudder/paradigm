@@ -92,6 +92,7 @@ establishProxy() {
 
 
 main() {
+  getOptions
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
   if [ -f ${pidFile} ]; then
     logIt I "${pidFile} found."
@@ -148,7 +149,7 @@ Examples:
 EOF
 }
 
-
+getOptions() {
 # GET USER OPTIONS
 # http://stackoverflow.com/a/14203146
 OPTIND=1
@@ -186,7 +187,7 @@ readonly PLAYNODE="$1"
 readonly SERVICENAME="$2"
 readonly SERVICEPORT=$3
 readonly CONTROLSERVER="$4"
-
+}
 
 # Call the main function once to start
 main 
