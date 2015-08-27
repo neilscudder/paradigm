@@ -52,11 +52,11 @@ getOptions() {
     readonly CONTROLSERVER="playnode.ca"
   fi
   
-  main
+  tunnelCheck
 }
 
 
-main() {
+tunnelCheck() {
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
   if [ -f ${pidFile} ]; then
     logIt I "${pidFile} found."
