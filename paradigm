@@ -7,25 +7,28 @@ argCounter() {
   correctNumber=$1; actualNumber=$2; function=$3
   if [ $actualNumber -lt $correctNumber ]; then
     logIt E "$function did not receive enough arguments."
-    echo "Exiting because $function did not receive enough arguments."
-    exit 1
   fi
 }
 
 
 logIt(){
   argCounter 2 $# $FUNCNAME
+  a="$(date) ${PLAYNODE} - "
   case $1 in
     I)
-      echo "$(date) ${PLAYNODE} - II - ${2}" >> $LOGFILE
+      b="${a}II"
     ;;
     W)
-      echo "$(date) ${PLAYNODE} - WW - ${2}" >> $LOGFILE
+      b="${a}WW"
     ;;
     E)
-      echo "$(date) ${PLAYNODE} - EE - ${2}" >> $LOGFILE
+      b="${a}EE"
+      echo "${b} - ${2}" >> $LOGFILE
+      echo "${b} - ${2}"
+      exit 1
     ;;
   esac
+  echo "${b} - ${2}" >> $LOGFILE
 }
 
 
@@ -44,7 +47,6 @@ getPortalias() {
   2>&1 )
   if [ -z $portalias ]; then
     logIt E "Portalias not set. Connection failed or playnode not found."
-    exit 1
   else
     logIt I "Portalias is ${portalias}"
     echo "${portalias}"
@@ -97,7 +99,7 @@ main() {
     if kill -0 $pid > /dev/null 2>&1; then
       logIt I "Tunnel ${pid} found running (${SERVICENAME})."
     else
-      logIt E "Tunnel ${pid} not found in process list (${SERVICENAME})."
+      logIt W "Tunnel ${pid} not found in process list (${SERVICENAME})."
       rm ${pidFile}
       if [ $PROXYMODE -eq 1 ]; then
         establishProxy "${pidFile}"
