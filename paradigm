@@ -5,6 +5,8 @@
 main() {
   getOptions $@
   tunnelCheck
+  echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
+  exit 0
 }
 
 
@@ -212,6 +214,3 @@ EOF
 
 # Call the first function to start
 main $@
-
-echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
-exit 0
