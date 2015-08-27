@@ -43,12 +43,12 @@ readonly CONTROLSERVER="$4"
 main() {
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
   if [ -f ${pidFile} ]; then
-    logEntry "II - ${pidFile} found."
+    logIt I "${pidFile} found."
     local pid=$(cat ${pidFile})
     if kill -0 $pid > /dev/null 2>&1; then
-      logEntry "II - Tunnel ${pid} found running (${SERVICENAME})."
+      logIt I "Tunnel ${pid} found running (${SERVICENAME})."
     else
-      logEntry "EE - Tunnel ${pid} not found in process list (${SERVICENAME})."
+      logIt E "Tunnel ${pid} not found in process list (${SERVICENAME})."
       rm ${pidFile}
       if [ $PROXYMODE -eq 1 ]; then
         establishProxy "${pidFile}"
@@ -61,7 +61,7 @@ main() {
     if [ $PROXYMODE -eq 1 ]; then
       establishProxy "${pidFile}"
     else
-      logEntry "WW - ${pidFile} not found for ${SERVICENAME}."
+      logIt W "${pidFile} not found for ${SERVICENAME}."
       portalias=$(getPortalias ${pidFile})
       establishTunnel ${portalias} "${pidFile}"
     fi
@@ -69,14 +69,24 @@ main() {
 }
 
 
-logEntry(){
-  echo "$(date) ${PLAYNODE} - ${1}" >> $LOGFILE
+logIt(){
+  case $1 in
+    I)
+      echo "$(date) ${PLAYNODE} - II - ${2}" >> $LOGFILE
+    ;;
+    W)
+      echo "$(date) ${PLAYNODE} - WW - ${2}" >> $LOGFILE
+    ;;
+    E)
+      echo "$(date) ${PLAYNODE} - EE - ${2}" >> $LOGFILE
+    ;;
+  esac
 }
 
 
 getPortalias() {
   local pidFile=$1
-  logEntry "II - getPortalias ${SERVICENAME}."
+  logIt I "getPortalias ${SERVICENAME}."
   local portCmd="cat 'portalias-${SERVICENAME}' | grep '^${PLAYNODE}' | /usr/bin/cut -d^ -f2"
   local portalias=$(
     /usr/bin/ssh \
@@ -87,10 +97,10 @@ getPortalias() {
     "${portCmd}" \
   2>&1 )
   if [ -z $portalias ]; then
-    logEntry "EE - Portalias not set. Connection failed or playnode not found."
+    logIt E "Portalias not set. Connection failed or playnode not found."
     exit 1
   else
-    logEntry "II - Portalias is ${portalias}"
+    logIt I "Portalias is ${portalias}"
     echo "${portalias}"
   fi
 }
@@ -100,11 +110,11 @@ establishTunnel() {
   if [ $# -eq 2 ]; then
     local portalias="$1"
     local pidFile="$2"
-    logEntry "II - Portalias ${portalias} being used for local ${SERVICEPORT} ${pidFile}"
+    logIt I "Portalias ${portalias} being used for local ${SERVICEPORT} ${pidFile}"
   else
     local portalias="NOTSET"
     local pidFile="$1"
-    logEntry "EE - Number of args is wrong. getPortalias() failed. ${pidFile}"
+    logIt I "Number of args is wrong. getPortalias() failed. ${pidFile}"
     # TODO Considering how serious an error this is, a failover should take effect.
     return
   fi
@@ -126,7 +136,7 @@ establishTunnel() {
 
 establishProxy() {
     local pidFile=$1
-    logEntry "establishProxy ${SERVICENAME}."
+    logIt I "establishProxy ${SERVICENAME}."
     /usr/bin/ssh \
     -q \
     -p ${SERVERPORT} \
