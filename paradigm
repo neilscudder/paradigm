@@ -12,7 +12,7 @@ Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
   Print this usage text.
 -u 
   User account on server. Default=paradigm.
--P 
+-p
   Server listening port. Default=22.
 -X 
   Proxy mode.
@@ -26,7 +26,7 @@ A server-side script registers new playnodes to new ports in this file.
 
 Examples: 
   paradigm PlaynodeName Shell 22 control.server.com
-  paradigm -u user -P 443 -l /var/lib/paradigm/log.paradigm PlaynodeName MPD 6600 control.server.com
+  paradigm -u user -p 443 -l /var/lib/paradigm/log.paradigm PlaynodeName MPD 6600 control.server.com
 
 EOF
 }
@@ -35,7 +35,7 @@ EOF
 # http://stackoverflow.com/a/14203146
 OPTIND=1
 PROXYMODE=0
-while getopts "hl:u:P:X" opt; do
+while getopts "hl:u:p:X" opt; do
   case "$opt" in
   h)
     showHelp
@@ -47,7 +47,7 @@ while getopts "hl:u:P:X" opt; do
   u)  
     readonly CONTROLUSER="$OPTARG"
     ;;
-  P)  
+  p)  
     readonly SERVERLISTENINGPORT=$OPTARG
     ;;
   X)  
