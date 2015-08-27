@@ -1,10 +1,15 @@
 #!/bin/sh
-# PARADIGM 0.5.2 Copyright 2014 neil@neilscudder.com
+# PARADIGM 0.6.0 Copyright 2014 neil@neilscudder.com
 # GNU GPL <http://www.gnu.org/licenses/>.
 
 main() {
   getOptions $@
-  tunnelCheck
+  checkPid
+  if [ $PROXYMODE ]; then
+    establishProxy
+  else      
+    establishTunnel
+  fi
   echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
 }
 
@@ -60,31 +65,19 @@ getOptions() {
 }
 
 
-tunnelCheck() {
+checkPid() {
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-  if [ -f ${pidFile} ]; then
-    logIt I "${pidFile} found."
+  if [ -f $pidfile ]; then
     local pid=$(cat ${pidFile})
-    if kill -0 $pid > /dev/null 2>&1; then
-      logIt I "Tunnel ${pid} found running"
-    else
-      logIt W "Tunnel ${pid} not found in process list"
-      rm ${pidFile}
-      if [ $PROXYMODE ]; then
-        establishProxy "${pidFile}"
-      else
-        portalias=$(getPortalias)
-        establishTunnel ${portalias} "${pidFile}"
-      fi
-    fi
   else
-    if [ $PROXYMODE ]; then
-      establishProxy "${pidFile}"
-    else
-      logIt W "${pidFile} not found"
-      portalias=$(getPortalias)
-      establishTunnel ${portalias} "${pidFile}"
-    fi
+    logIt W "pid file not found"
+  fi
+
+  if [ $pid && kill -0 $pid > /dev/null 2>&1 ]; then
+    logIt I "Tunnel found running, ex(c)iting."
+    exit 0
+  else
+    logIt W "pid not found running"
   fi
 }
 
@@ -149,7 +142,8 @@ getPortalias() {
 
 
 establishTunnel() {
-  argCounter 2 $# $FUNCNAME
+  portalias=$(getPortalias)
+  local pidFile=/tmp/paradigm-${SERVICENAME}.pid
   /usr/bin/ssh \
   -p ${SERVERPORT} \
   -q \
@@ -165,8 +159,7 @@ establishTunnel() {
 
 
 establishProxy() {
-  argCounter 1 $# $FUNCNAME
-  local pidFile=$1
+  local pidFile=/tmp/paradigm-${SERVICENAME}.pid
   /usr/bin/ssh \
   -p ${SERVERPORT} \
   -q \
@@ -177,7 +170,7 @@ establishProxy() {
   -N \
   -D ${SERVICEPORT} \
   ${CONTROLUSER}@${CONTROLSERVER} & \
-  echo $! > ${pidFile} &
+  echo $! > "${pidFile}" &
 }
 
 
