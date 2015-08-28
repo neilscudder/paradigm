@@ -4,7 +4,7 @@
 
 # http://stackoverflow.com/a/9894126/5045643
 trap "exit 1" TERM
-export TOP_PID=$$
+readonly TOP_PID=$$
 
 main() {
   getOptions $@
@@ -60,7 +60,7 @@ getOptions() {
 checkPid() {
   logIt I "checkPid"
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-  if [ -f ${pidfile} ]; then
+  if [ -e "$pidfile" ]; then
     local pid=$(cat ${pidFile})
     logIt I "pid file found"
   else
