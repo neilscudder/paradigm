@@ -5,11 +5,7 @@
 main() {
   getOptions $@
   checkPid
-  if [ $PROXYMODE ]; then
-    establishProxy
-  else      
-    establishTunnel
-  fi
+  [ $PROXYMODE ] && establishProxy || establishTunnel
   echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
 }
 
@@ -19,25 +15,17 @@ getOptions() {
   OPTIND=1
   while getopts "hl:p:tu:X" opt; do
     case "$opt" in
-    h)
-      showHelp
-      exit 0
+    h)showHelp
       ;;
-    l)  
-      readonly LOGFILE="$OPTARG"
+    l)readonly LOGFILE="$OPTARG"
       ;;
-    p)  
-      readonly SERVERPORT=$OPTARG
+    p)readonly SERVERPORT=$OPTARG
       ;;
-    t)  
-      readonly TESTER=1
+    t)readonly TESTER=1
       ;;
-    u)  
-      readonly CONTROLUSER="$OPTARG"
+    u)readonly CONTROLUSER="$OPTARG"
       ;;
-
-    X)  
-      readonly PROXYMODE=1
+    X)readonly PROXYMODE=1
       ;;
     esac
   done
@@ -85,15 +73,6 @@ checkPid() {
 }
 
 
-argCounter() {
-  correctNumber=$1; actualNumber=$2; function=$3
-  if [ $actualNumber -lt $correctNumber ]; then
-    error_exit "$function did not receive enough arguments."
-  else
-    logIt I "$function"
-  fi
-}
-
 # http://linuxcommand.org/wss0150.php
 error_exit() {
   logIt E "${1:-"Unknown Error"}"
@@ -135,13 +114,8 @@ getPortalias() {
     ${CONTROLUSER}@${CONTROLSERVER} \
     "${portCmd}" \
   2>&1 )
-  if [ -z $portalias ]; then
-    error_exit "Portalias not set. \
-      Connection failed or playnode not found."
-  else
-    logIt I "Portalias is ${portalias}"
-    echo "${portalias}"
-  fi
+  [ -z $portalias ] && error_exit "Portalias not set."
+  logIt I "Portalias is ${portalias}"
 }
 
 
@@ -207,6 +181,7 @@ Examples:
 PlaynodeName MPD 6600 control.server.com
 
 EOF
+  exit 0
 }
 
 
