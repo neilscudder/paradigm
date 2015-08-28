@@ -11,6 +11,7 @@ main() {
   checkPid
   [ $PROXYMODE ] && establishProxy || establishTunnel
   echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
+  [ $TESTER ] && tail $LOGFILE
 }
 
 
@@ -80,7 +81,7 @@ checkPid() {
 # http://linuxcommand.org/wss0150.php
 error_exit() {
   logIt E "${1:-"Unknown Error"}"
-  kill -s TERM $TOP_PID
+  kill -s TERM $TOP_PID || logIt W "fail"
 }
 
 
@@ -117,7 +118,7 @@ getPortalias() {
     -o ControlMaster=no \
     ${CONTROLUSER}@${CONTROLSERVER} \
     "${portCmd}" \
-    || error_exit "Ssh connection failed.")
+    || logIt E "Ssh connection failed." & exit 1)
   [ -z $portalias ] && error_exit "Portalias not set."
   logIt I "Portalias is ${portalias}"
   echo ${portalias}
