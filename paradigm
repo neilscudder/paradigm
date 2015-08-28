@@ -131,8 +131,10 @@ sshFunction() {
     ${CONTROLUSER}@${CONTROLSERVER} \
     "${remoteCmd}"
 
-  if [ $? ] ; then
-    logIt E "Ssh connection failed."
+  if [ "$?" = "0" ] ; then
+    logIt I "sshFunction success!"
+  else
+    logIt E "Ssh connection failed. :-(="
     exit 1 
   fi
 }
