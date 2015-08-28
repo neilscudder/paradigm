@@ -132,10 +132,9 @@ sshFunction() {
     "${remoteCmd}"
 
   if [ "$?" = "0" ] ; then
-    logIt I "sshFunction success!"
+    logIt I "sshFunction success."
   else
-    logIt E "Ssh connection failed. :-(="
-    exit 1 
+    error_exit "sshFunction failed."
   fi
 }
 
