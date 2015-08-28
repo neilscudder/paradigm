@@ -2,6 +2,7 @@
 # PARADIGM 0.6.1 Copyright 2014 @neilscudder
 # GNU GPL <http://www.gnu.org/licenses/>.
 
+# http://stackoverflow.com/a/9894126/5045643
 trap "exit 1" TERM
 export TOP_PID=$$
 
