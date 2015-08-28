@@ -60,7 +60,7 @@ getOptions() {
     readonly PLAYNODE="Barb"
     readonly SERVICENAME="Shel"
     readonly SERVICEPORT=23
-    readonly CONTROLSERVER="control"
+    readonly CONTROLSERVER="playnode.ca"
   fi
 }
 
@@ -106,29 +106,42 @@ logIt() {
 
 getPortalias() {
   logIt I "getPortalias"
-  local portCmd="cat\
+
+  portalias=$(sshFunction) 
+
+  if [ -z $portalias ]; then
+    error_exit "Portalias not set."
+  else
+    logIt I "Portalias is ${portalias}"
+  fi
+}
+
+sshFunction() {
+  local remoteCmd="cat \
     'portalias-${SERVICENAME}' \
     | grep '^${PLAYNODE}' \
     | /usr/bin/cut -d^ -f2"
-  local portalias=$(
-    /usr/bin/ssh \
-    -q \
+
+  local sshArgs=""
+
+  /usr/bin/ssh -q \
     -p ${SERVERPORT} \
     -o ConnectTimeout=5 \
     -o ControlMaster=no \
     ${CONTROLUSER}@${CONTROLSERVER} \
-    "${portCmd}" \
-    || logIt E "Ssh connection failed." & exit 1)
-  [ -z $portalias ] && error_exit "Portalias not set."
-  logIt I "Portalias is ${portalias}"
-  echo ${portalias}
-}
+    "${remoteCmd}"
 
+  if [ $? ] ; then
+    logIt E "Ssh connection failed."
+    exit 1 
+  fi
+}
 
 establishTunnel() {
   logIt I "establishTunnel"
   portalias=$(getPortalias)
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
+
   /usr/bin/ssh \
   -p ${SERVERPORT} \
   -q \
