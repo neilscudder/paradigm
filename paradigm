@@ -66,7 +66,7 @@ getOptions() {
 
 
 checkPid() {
-  logIt I "$FUNCNAME"
+  logIt I "checkPid"
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
   if [ -f ${pidfile} ]; then
     local pid=$(cat ${pidFile})
@@ -122,7 +122,7 @@ logIt() {
 
 
 getPortalias() {
-  logIt I "$FUNCNAME"
+  logIt I "getPortalias"
   local portCmd="cat\
     'portalias-${SERVICENAME}' \
     | grep '^${PLAYNODE}' \
@@ -146,7 +146,7 @@ getPortalias() {
 
 
 establishTunnel() {
-  logIt I "$FUNCNAME"
+  logIt I "establishTunnel"
   portalias=$(getPortalias)
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
   /usr/bin/ssh \
@@ -164,7 +164,7 @@ establishTunnel() {
 
 
 establishProxy() {
-  logIt I "$FUNCNAME"
+  logIt I "establishProxy"
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
   /usr/bin/ssh \
   -p ${SERVERPORT} \
