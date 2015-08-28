@@ -45,7 +45,7 @@ getOptions() {
     readonly CONTROLUSER="convict"
     readonly SERVERPORT=42
     readonly LOGFILE="./log.paradigm"
-    readonly PLAYNODE="dummy"
+    readonly PLAYNODE="Barb"
     readonly SERVICENAME="Shell"
     readonly SERVICEPORT=23
     readonly CONTROLSERVER="control"
@@ -110,12 +110,14 @@ getPortalias() {
     /usr/bin/ssh \
     -q \
     -p ${SERVERPORT} \
+    -o ConnectTimeout=5 \
     -o ControlMaster=no \
     ${CONTROLUSER}@${CONTROLSERVER} \
-    "${portCmd}" \
-  2>&1 )
+    "${portCmd}" )
+  [ "$?" != "0" ] && error_exit "Ssh connection failed."
   [ -z $portalias ] && error_exit "Portalias not set."
   logIt I "Portalias is ${portalias}"
+  echo ${portalias}
 }
 
 
