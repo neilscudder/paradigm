@@ -3,10 +3,11 @@
 # GNU GPL <http://www.gnu.org/licenses/>.
 
 # http://stackoverflow.com/a/9894126/5045643
+# This does not work
 trap "exit 1" TERM
 readonly TOP_PID=$$
 
-main() {
+main() {  ### Called at bottom of script
   getOptions $@
   checkPid
   [ $PROXYMODE ] && establishProxy || establishTunnel
@@ -14,6 +15,12 @@ main() {
   [ $TESTER ] && tail $LOGFILE
 }
 
+# http://linuxcommand.org/wss0150.php
+error_exit() {
+  logIt E "${1:-"Unknown Error"}"
+  # None of this works:
+  kill -s TERM $TOP_PID || logIt W "fail"
+}
 
 getOptions() {
   # http://stackoverflow.com/a/14203146
@@ -75,13 +82,6 @@ checkPid() {
     rm -f ${pidfile}
     logIt W "pid not found running"
   fi
-}
-
-
-# http://linuxcommand.org/wss0150.php
-error_exit() {
-  logIt E "${1:-"Unknown Error"}"
-  kill -s TERM $TOP_PID || logIt W "fail"
 }
 
 
