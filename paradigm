@@ -1,6 +1,9 @@
 #!/bin/sh
-# PARADIGM 0.6.0 Copyright 2014 neil@neilscudder.com
+# PARADIGM 0.6.1 Copyright 2014 @neilscudder
 # GNU GPL <http://www.gnu.org/licenses/>.
+
+trap "exit 1" TERM
+export TOP_PID=$$
 
 main() {
   getOptions $@
@@ -43,10 +46,10 @@ getOptions() {
     readonly CONTROLSERVER="$4"
   else
     readonly CONTROLUSER="convict"
-    readonly SERVERPORT=42
+    readonly SERVERPORT=22
     readonly LOGFILE="./log.paradigm"
     readonly PLAYNODE="Barb"
-    readonly SERVICENAME="Shell"
+    readonly SERVICENAME="Shel"
     readonly SERVICEPORT=23
     readonly CONTROLSERVER="control"
   fi
@@ -76,7 +79,7 @@ checkPid() {
 # http://linuxcommand.org/wss0150.php
 error_exit() {
   logIt E "${1:-"Unknown Error"}"
-  exit 1
+  kill -s TERM $TOP_PID
 }
 
 
@@ -92,8 +95,7 @@ logIt() {
     ;;
     E)
       b="${a}EE"
-      echo "${b} - ${2}" >> $LOGFILE
-      echo "${b} - ${2}" 1>&2
+      #echo "${b} - ${2}" 1>&2
     ;;
   esac
   echo "${b} - ${2}" >> $LOGFILE
@@ -113,8 +115,8 @@ getPortalias() {
     -o ConnectTimeout=5 \
     -o ControlMaster=no \
     ${CONTROLUSER}@${CONTROLSERVER} \
-    "${portCmd}" )
-  [ "$?" != "0" ] && error_exit "Ssh connection failed."
+    "${portCmd}" \
+    || error_exit "Ssh connection failed.")
   [ -z $portalias ] && error_exit "Portalias not set."
   logIt I "Portalias is ${portalias}"
   echo ${portalias}
