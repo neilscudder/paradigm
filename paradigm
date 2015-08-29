@@ -143,7 +143,7 @@ establishTunnel() {
   logIt I "establishTunnel"
   portalias=$(getPortalias)
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-  echo "$portalias $SERVERPORT"
+  logIt I "ports $portalias $SERVERPORT"
   /usr/bin/ssh \
   -p ${SERVERPORT} \
   -o ServerAliveCountMax=2 \
@@ -153,6 +153,7 @@ establishTunnel() {
   -N \
   -R ${portalias}:localhost:${SERVICEPORT} \
   ${CONTROLUSER}@${CONTROLSERVER} \
+  >> $LOGFILE 2>&1 \
   || error_exit "establishTunnel ssh failed." \
   &
 #  pid=$!
