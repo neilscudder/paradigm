@@ -102,23 +102,21 @@ logIt() {
 getPortalias() {
   logIt I "getPortalias"
 
-  portalias=$(sshFunction) 
+  portalias=$(sshPortalias) 
 
   if [ -z $portalias ]; then
     error_exit "Portalias not set."
   else
     logIt I "Portalias is ${portalias}"
-    echo "$portalias"
+    echo "$portalias" # Return the value
   fi
 }
 
-sshFunction() {
+sshPortalias() {
   local remoteCmd="cat \
     'portalias-${SERVICENAME}' \
     | grep '^${PLAYNODE}' \
     | /usr/bin/cut -d^ -f2"
-
-  local sshArgs=""
 
   /usr/bin/ssh -q \
     -p ${SERVERPORT} \
@@ -128,17 +126,28 @@ sshFunction() {
     "${remoteCmd}"
 
   if [ "$?" = "0" ] ; then
-    logIt I "gp sshFunction success."
+    logIt I "sshPortalias success."
   else
-    error_exit "gp sshFunction failed."
+    error_exit "sshPortalias failed."
   fi
 }
 
 establishTunnel() {
   logIt I "establishTunnel"
+  pid=$(sshTunnel)
+  if [ -z $pid ]; then
+    error_exit "pid not set."
+  else
+    logIt I "pid is ${pid}"
+    local pidFile=/tmp/paradigm-${SERVICENAME}.pid
+    echo "$pid" > "$pidFile"
+  fi
+}
+
+
+sshTunnel() {
   portalias=$(getPortalias)
-  local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-  logIt I "ports $portalias $SERVERPORT"
+
   /usr/bin/ssh \
   -p ${SERVERPORT} \
   -o ServerAliveCountMax=2 \
@@ -148,35 +157,14 @@ establishTunnel() {
   -N \
   -R ${portalias}:localhost:${SERVICEPORT} \
   ${CONTROLUSER}@${CONTROLSERVER} \
-  >> $LOGFILE 2>&1 \
-  || error_exit "establishTunnel ssh failed." \
-  &
-  pid=$!
-  wait $!
-  echo $! > "${pidFile}"
-  if [ "$?" = "0" ] ; then
-    logIt I "establishTunnel success."
-    echo $pid > ${pidFile}
-  else
-    error_exit "establishTunnel exit non zero"
-  fi
+  >> $LOGFILE 2>&1 && echo "$!"
+
+  # Echo returns the value
 }
 
 
 establishProxy() {
-  logIt I "establishProxy"
-  local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-  /usr/bin/ssh \
-  -p ${SERVERPORT} \
-  -q \
-  -o ServerAliveCountMax=2 \
-  -o ServerAliveInterval=45 \
-  -o ControlMaster=no \
-  -o ExitOnForwardFailure=yes \
-  -N \
-  -D ${SERVICEPORT} \
-  ${CONTROLUSER}@${CONTROLSERVER} & \
-  echo $! > "${pidFile}" &
+  logIt I "establishProxy is empty"
 }
 
 
