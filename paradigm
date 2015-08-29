@@ -2,11 +2,6 @@
 # PARADIGM 0.6.1 Copyright 2014 @neilscudder
 # GNU GPL <http://www.gnu.org/licenses/>.
 
-# http://stackoverflow.com/a/9894126/5045643
-# This does not work
-trap "exit 1" TERM
-readonly TOP_PID=$$
-
 main() {  ### Called at bottom of script
   logIt "paradigm executed"
   getOptions $@
@@ -19,8 +14,7 @@ main() {  ### Called at bottom of script
 # http://linuxcommand.org/wss0150.php
 error_exit() {
   logIt E "${1:-"Unknown Error"}"
-  # None of this works:
-  kill -s TERM $TOP_PID || logIt W "kill fail"
+  exit 1 # only exits subshell
 }
 
 getOptions() {
