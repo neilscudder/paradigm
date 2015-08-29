@@ -4,7 +4,7 @@
 
 main() {  ### Called at bottom of script
   getOptions $@
-  logIt I "paradigm executed"
+  logIt I "--- START ---"
   checkPid
   [ $PROXYMODE ] && establishProxy || establishTunnel
   echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
@@ -75,7 +75,7 @@ checkPid() {
 #    logIt W "pid file not found"
 #  fi
 
-  if kill -0 $(cat ${pidFile}) > /dev/null 2>&1; then
+  if kill -0 $(cat ${pidFile}); then
     logIt I "pid running, exiting."
     exit 0
   else
@@ -158,7 +158,7 @@ establishTunnel() {
   &
   pid=$!
   wait $!
-#  echo $! > "${pidFile}"
+  echo $! > "${pidFile}"
   if [ "$?" = "0" ] ; then
     logIt I "establishTunnel success."
     echo $pid > ${pidFile}
