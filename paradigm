@@ -8,7 +8,7 @@ main() {  ### Called at bottom of script
   checkPid
   [ $PROXYMODE ] && establishProxy || establishTunnel
   echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
-  [ $TESTER ] && tail $LOGFILE
+  [ $TESTER ] && tail -n40 $LOGFILE
 }
 
 # http://linuxcommand.org/wss0150.php
@@ -63,25 +63,20 @@ getOptions() {
 checkPid() {
   logIt I "checkPid"
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-  logIt I "${pidFile}"
-#  pid=$(cat $pidFile || logIt W "pidFile not found.")
+  pid=$(cat "$pidFile" || logIt W "pidFile not found.")
 
-#  [ kill -0 $pid > /dev/null 2>&1 ] && logIt I "pid found running, ex(c)iting." || rm -f ${pidfile}
-
-#  if [ -e "$pidfile" ]; then
-#    local pid=$(cat ${pidFile})
-#    logIt I "pid file found"
-#  else
-#    logIt W "pid file not found"
-#  fi
-
-  if kill -0 $(cat ${pidFile}); then
-    logIt I "pid running, exiting."
-    exit 0
-  else
-#    rm -f ${pidfile}
-    logIt W "pid not found running"
+  if [ $pid ]; then
+    logIt I "$pid set."
+set -x
+    if kill -0 $pid; then
+      logIt I "pid running, exiting."
+      exit 0
+    else
+  #    rm -f ${pidfile}
+      logIt W "pid not found running"
+    fi
   fi
+set +x
 }
 
 
