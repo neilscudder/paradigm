@@ -3,8 +3,8 @@
 # GNU GPL <http://www.gnu.org/licenses/>.
 
 main() {  ### Called at bottom of script
-  logIt "paradigm executed"
   getOptions $@
+  logIt "paradigm executed"
   checkPid
   [ $PROXYMODE ] && establishProxy || establishTunnel
   echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
