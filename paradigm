@@ -163,6 +163,7 @@ sshTunnel() {
   -o ExitOnForwardFailure=yes \
   -R ${portalias}:localhost:${SERVICEPORT} \
   ${CONTROLUSER}@${CONTROLSERVER} \
+  >> /dev/null 2>&1 \
   & echo "$!"
   # Echo returns the value
 }
