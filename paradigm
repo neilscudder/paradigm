@@ -75,7 +75,7 @@ checkPid() {
 #    logIt W "pid file not found"
 #  fi
 
-  if [ kill -0 $(cat ${pidFile}) > /dev/null 2>&1 ]; then
+  if kill -0 $(cat ${pidFile}) > /dev/null 2>&1; then
     logIt I "pid running, exiting."
     exit 0
   else
