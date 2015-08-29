@@ -154,18 +154,17 @@ establishTunnel() {
   -R ${portalias}:localhost:${SERVICEPORT} \
   ${CONTROLUSER}@${CONTROLSERVER} \
   >> $LOGFILE 2>&1 \
-  && logIt I "establishTunnel ssh succeeded." \
   || error_exit "establishTunnel ssh failed." \
   &
-#  pid=$!
-#  wait !$
-  echo $! > "${pidFile}"
-#  if [ "$?" = "0" ] ; then
-#    logIt I "establishTunnel success."
-#    echo $pid > ${pidFile}
-#  else
-#    error_exit "establishTunnel failed."
-#  fi
+  pid=$!
+  wait $!
+#  echo $! > "${pidFile}"
+  if [ "$?" = "0" ] ; then
+    logIt I "establishTunnel success."
+    echo $pid > ${pidFile}
+  else
+    error_exit "establishTunnel exit non zero"
+  fi
 }
 
 
