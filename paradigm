@@ -63,20 +63,23 @@ getOptions() {
 checkPid() {
   logIt I "checkPid"
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-  pid=$(cat "$pidFile" || logIt W "pidFile not found.")
+  if [ -e "$pidFile" ]; then
+    pid=$(cat "$pidFile")
+    logIt I "pidFile found, read ${pid}"
+  else
+    logIt W "pidFile not fucking found."
+  fi
 
   if [ $pid ]; then
-    logIt I "$pid set."
-set -x
+    logIt I "$pid found"
     if kill -0 $pid; then
       logIt I "pid running, exiting."
       exit 0
     else
-  #    rm -f ${pidfile}
+      rm -f ${pidfile}
       logIt W "pid not found running"
     fi
   fi
-set +x
 }
 
 
@@ -134,31 +137,37 @@ sshPortalias() {
 
 establishTunnel() {
   logIt I "establishTunnel"
-  pid=$(sshTunnel)
-  if [ -z $pid ]; then
-    error_exit "pid not set."
-  else
+  portalias=$(getPortalias)
+  pid=$(sshTunnel ${portalias})
+#  if [ -z $pid ]; then
+#    error_exit "pid not set."
+#  else
     logIt I "pid is ${pid}"
     local pidFile=/tmp/paradigm-${SERVICENAME}.pid
     echo "$pid" > "$pidFile"
-  fi
+#  fi
 }
 
 
 sshTunnel() {
-  portalias=$(getPortalias)
+  set -x
+  portalias="$1"
 
   /usr/bin/ssh \
+  -q
+  -f \
+  -N \
   -p ${SERVERPORT} \
+  -o ConnectTimeout=3 \
   -o ServerAliveCountMax=2 \
   -o ServerAliveInterval=45 \
   -o ControlMaster=no \
   -o ExitOnForwardFailure=yes \
-  -N \
   -R ${portalias}:localhost:${SERVICEPORT} \
-  ${CONTROLUSER}@${CONTROLSERVER} \
-  >> $LOGFILE 2>&1 && echo "$!"
-
+  ${CONTROLUSER}@${CONTROLSERVER} 
+  
+  echo "$!"
+  set +x
   # Echo returns the value
 }
 
