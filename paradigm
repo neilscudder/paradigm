@@ -4,7 +4,7 @@
 
 main() {  ### Called at bottom of script
   getOptions $@
-  logIt "paradigm executed"
+  logIt I "paradigm executed"
   checkPid
   [ $PROXYMODE ] && establishProxy || establishTunnel
   echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
@@ -63,8 +63,8 @@ getOptions() {
 checkPid() {
   logIt I "checkPid"
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-
-  pid=$(cat $pidFile || logIt W "pidFile not found.")
+  logIt I "${pidFile}"
+#  pid=$(cat $pidFile || logIt W "pidFile not found.")
 
 #  [ kill -0 $pid > /dev/null 2>&1 ] && logIt I "pid found running, ex(c)iting." || rm -f ${pidfile}
 
@@ -75,11 +75,11 @@ checkPid() {
 #    logIt W "pid file not found"
 #  fi
 
-  if [ kill -0 $pid > /dev/null 2>&1 ]; then
+  if [ kill -0 $(cat ${pidFile}) > /dev/null 2>&1 ]; then
     logIt I "pid running, exiting."
     exit 0
   else
-    rm -f ${pidfile}
+#    rm -f ${pidfile}
     logIt W "pid not found running"
   fi
 }
@@ -133,9 +133,9 @@ sshFunction() {
     "${remoteCmd}"
 
   if [ "$?" = "0" ] ; then
-    logIt I "sshFunction success."
+    logIt I "gp sshFunction success."
   else
-    error_exit "sshFunction failed."
+    error_exit "gp sshFunction failed."
   fi
 }
 
@@ -154,6 +154,7 @@ establishTunnel() {
   -R ${portalias}:localhost:${SERVICEPORT} \
   ${CONTROLUSER}@${CONTROLSERVER} \
   >> $LOGFILE 2>&1 \
+  && logIt I "establishTunnel ssh succeeded." \
   || error_exit "establishTunnel ssh failed." \
   &
 #  pid=$!
