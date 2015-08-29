@@ -8,6 +8,7 @@ trap "exit 1" TERM
 readonly TOP_PID=$$
 
 main() {  ### Called at bottom of script
+  logIt "paradigm executed"
   getOptions $@
   checkPid
   [ $PROXYMODE ] && establishProxy || establishTunnel
@@ -19,7 +20,7 @@ main() {  ### Called at bottom of script
 error_exit() {
   logIt E "${1:-"Unknown Error"}"
   # None of this works:
-  kill -s TERM $TOP_PID || logIt W "fail"
+  kill -s TERM $TOP_PID || logIt W "kill fail"
 }
 
 getOptions() {
@@ -55,12 +56,12 @@ getOptions() {
     readonly CONTROLSERVER="$4"
   else
     readonly CONTROLUSER="convict"
-    readonly SERVERPORT=22
+    readonly SERVERPORT=42
     readonly LOGFILE="./log.paradigm"
     readonly PLAYNODE="Barb"
-    readonly SERVICENAME="Shel"
-    readonly SERVICEPORT=23
-    readonly CONTROLSERVER="playnode.ca"
+    readonly SERVICENAME="MPD"
+    readonly SERVICEPORT=6600
+    readonly CONTROLSERVER="control"
   fi
 }
 
@@ -68,15 +69,20 @@ getOptions() {
 checkPid() {
   logIt I "checkPid"
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-  if [ -e "$pidfile" ]; then
-    local pid=$(cat ${pidFile})
-    logIt I "pid file found"
-  else
-    logIt W "pid file not found"
-  fi
 
-  if kill -0 $pid > /dev/null 2>&1; then
-    logIt I "Tunnel found running, ex(c)iting."
+  pid=$(cat $pidFile || logIt W "pidFile not found.")
+
+#  [ kill -0 $pid > /dev/null 2>&1 ] && logIt I "pid found running, ex(c)iting." || rm -f ${pidfile}
+
+#  if [ -e "$pidfile" ]; then
+#    local pid=$(cat ${pidFile})
+#    logIt I "pid file found"
+#  else
+#    logIt W "pid file not found"
+#  fi
+
+  if [ kill -0 $pid > /dev/null 2>&1 ]; then
+    logIt I "pid running, exiting."
     exit 0
   else
     rm -f ${pidfile}
@@ -113,6 +119,7 @@ getPortalias() {
     error_exit "Portalias not set."
   else
     logIt I "Portalias is ${portalias}"
+    echo "$portalias"
   fi
 }
 
@@ -142,18 +149,27 @@ establishTunnel() {
   logIt I "establishTunnel"
   portalias=$(getPortalias)
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-
+  echo "$portalias $SERVERPORT"
   /usr/bin/ssh \
   -p ${SERVERPORT} \
-  -q \
   -o ServerAliveCountMax=2 \
   -o ServerAliveInterval=45 \
   -o ControlMaster=no \
   -o ExitOnForwardFailure=yes \
   -N \
   -R ${portalias}:localhost:${SERVICEPORT} \
-  ${CONTROLUSER}@${CONTROLSERVER} & \
+  ${CONTROLUSER}@${CONTROLSERVER} \
+  || error_exit "establishTunnel ssh failed." \
+  &
+#  pid=$!
+#  wait !$
   echo $! > "${pidFile}"
+#  if [ "$?" = "0" ] ; then
+#    logIt I "establishTunnel success."
+#    echo $pid > ${pidFile}
+#  else
+#    error_exit "establishTunnel failed."
+#  fi
 }
 
 
