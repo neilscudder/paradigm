@@ -139,23 +139,21 @@ establishTunnel() {
   logIt I "establishTunnel"
   portalias=$(getPortalias)
   pid=$(sshTunnel ${portalias})
-#  if [ -z $pid ]; then
-#    error_exit "pid not set."
-#  else
+  if [ -z $pid ]; then
+    error_exit "pid not set."
+  else
     logIt I "pid is ${pid}"
     local pidFile=/tmp/paradigm-${SERVICENAME}.pid
     echo "$pid" > "$pidFile"
-#  fi
+  fi
 }
 
 
 sshTunnel() {
-  set -x
   portalias="$1"
 
   /usr/bin/ssh \
-  -q
-  -f \
+  -q \
   -N \
   -p ${SERVERPORT} \
   -o ConnectTimeout=3 \
@@ -164,10 +162,8 @@ sshTunnel() {
   -o ControlMaster=no \
   -o ExitOnForwardFailure=yes \
   -R ${portalias}:localhost:${SERVICEPORT} \
-  ${CONTROLUSER}@${CONTROLSERVER} 
-  
-  echo "$!"
-  set +x
+  ${CONTROLUSER}@${CONTROLSERVER} \
+  & echo "$!"
   # Echo returns the value
 }
 
