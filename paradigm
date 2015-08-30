@@ -184,7 +184,7 @@ sshTunnel() {
 showHelp() {
   cat << EOF
 
-Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
+Usage: [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
 -h
   Print this usage text.
