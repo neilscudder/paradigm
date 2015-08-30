@@ -2,25 +2,28 @@
 # PARADIGM 0.6.2 Copyright 2015 @neilscudder
 # GNU GPL <http://www.gnu.org/licenses/>.
 
-main() {  ### Called at bottom of script
-  getOptions $@
-  logIt I "--- START ---"
-  checkPid
-  [ $PROXYMODE ] && establishProxy || establishTunnel
+
+main() {                     # Called at bottom of script
+  getOptions $@              # Parse user input and set GLOBALS
+  logIt I "--- START ---"    # Make an Informational log entry
+  checkPid                   # Check to see if the tunnel is running
+  establishTunnel            # If checkPid didn't exit the script
+
   echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
   [ $TESTER ] && tail -n40 $LOGFILE
 }
 
-# http://linuxcommand.org/wss0150.php
+
 error_exit() {
   logIt E "${1:-"Unknown Error"}"
-  exit 1 # only exits subshell
-}
+  exit 1                      # !!! ONLY exits subshell
+} 
+# http://linuxcommand.org/wss0150.php
+
 
 getOptions() {
-  # http://stackoverflow.com/a/14203146
   OPTIND=1
-  while getopts "hl:p:tu:X" opt; do
+  while getopts "hl:p:tu:" opt; do
     case "$opt" in
     h)showHelp
       ;;
@@ -31,8 +34,6 @@ getOptions() {
     t)readonly TESTER=1
       ;;
     u)readonly CONTROLUSER="$OPTARG"
-      ;;
-    X)readonly PROXYMODE=1
       ;;
     esac
   done
@@ -58,22 +59,24 @@ getOptions() {
     readonly CONTROLSERVER="control"
   fi
 }
+# http://stackoverflow.com/a/14203146
 
 
 checkPid() {
   logIt I "checkPid"
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
+
   if [ -e "$pidFile" ]; then
     pid=$(cat "$pidFile")
-    logIt I "pidFile found, read ${pid}"
+    logIt I "pidFile found, pid is ${pid}"
   else
-    logIt W "pidFile not fucking found."
+    logIt W "pidFile not found."
   fi
 
   if [ $pid ]; then
     logIt I "$pid found"
     if kill -0 $pid; then
-      logIt I "pid running, exiting."
+      logIt I "pid running, exiting script."
       exit 0
     else
       rm -f ${pidfile}
@@ -84,8 +87,11 @@ checkPid() {
 
 
 logIt() {
+  # Check if GLOBALS not set
   [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
+  # Log file format:
   a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
+
   case $1 in
     I)
       b="${a}II"
@@ -98,30 +104,34 @@ logIt() {
       #echo "${b} - ${2}" 1>&2
     ;;
   esac
+
   echo "${b} - ${2}" >> $LOGFILE
 }
 
 
 getPortalias() {
   logIt I "getPortalias"
-
   portalias=$(sshPortalias) 
 
   if [ -z $portalias ]; then
-    error_exit "Portalias not set."
+    error_exit "Portalias var is empty."
   else
     logIt I "Portalias is ${portalias}"
-    echo "$portalias" # Return the value
+    # Return the value:
+    echo "$portalias"
   fi
 }
 
+
 sshPortalias() {
-  local remoteCmd="cat \
+  local remoteCmd="\
+    cat \
     'portalias-${SERVICENAME}' \
     | grep '^${PLAYNODE}' \
     | /usr/bin/cut -d^ -f2"
 
-  /usr/bin/ssh -q \
+  /usr/bin/ssh \
+    -q \
     -p ${SERVERPORT} \
     -o ConnectTimeout=5 \
     -o ControlMaster=no \
@@ -135,10 +145,12 @@ sshPortalias() {
   fi
 }
 
+
 establishTunnel() {
   logIt I "establishTunnel"
   portalias=$(getPortalias)
   pid=$(sshTunnel ${portalias})
+
   if [ -z $pid ]; then
     error_exit "pid not set."
   else
@@ -153,24 +165,19 @@ sshTunnel() {
   portalias="$1"
 
   /usr/bin/ssh \
-  -q \
-  -N \
-  -p ${SERVERPORT} \
-  -o ConnectTimeout=3 \
-  -o ServerAliveCountMax=2 \
-  -o ServerAliveInterval=45 \
-  -o ControlMaster=no \
-  -o ExitOnForwardFailure=yes \
-  -R ${portalias}:localhost:${SERVICEPORT} \
-  ${CONTROLUSER}@${CONTROLSERVER} \
-  >> /dev/null 2>&1 \
-  & echo "$!"
+    -q \
+    -N \
+    -p ${SERVERPORT} \
+    -o ConnectTimeout=3 \
+    -o ServerAliveCountMax=2 \
+    -o ServerAliveInterval=45 \
+    -o ControlMaster=no \
+    -o ExitOnForwardFailure=yes \
+    -R ${portalias}:localhost:${SERVICEPORT} \
+    ${CONTROLUSER}@${CONTROLSERVER} \
+    >> /dev/null 2>&1 \
+    & echo "$!"
   # Echo returns the value
-}
-
-
-establishProxy() {
-  logIt I "establishProxy is empty"
 }
 
 
@@ -185,8 +192,6 @@ Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
   User account on server. Default=paradigm.
 -p
   Server listening port. Default=22.
--X 
-  Proxy mode.
 
 A playnode is a name to define a group of service ports,
 usually the client hostname.
