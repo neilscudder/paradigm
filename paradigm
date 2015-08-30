@@ -1,6 +1,7 @@
 #!/bin/sh
 # PARADIGM 0.6.2 Copyright 2015 @neilscudder
 # GNU GPL <http://www.gnu.org/licenses/>.
+# DEV
 
 main() {  ### Called at bottom of script
   getOptions $@
