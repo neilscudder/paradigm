@@ -6,7 +6,7 @@ main() {  ### Called at bottom of script
   getOptions $@
   logIt I "--- START ---"
   checkPid
-  [ $PROXYMODE ] && establishProxy || establishTunnel
+  establishTunnel
   echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
   [ $TESTER ] && tail -n40 $LOGFILE
 }
@@ -20,7 +20,7 @@ error_exit() {
 getOptions() {
   # http://stackoverflow.com/a/14203146
   OPTIND=1
-  while getopts "hl:p:tu:X" opt; do
+  while getopts "hl:p:tu:" opt; do
     case "$opt" in
     h)showHelp
       ;;
@@ -31,8 +31,6 @@ getOptions() {
     t)readonly TESTER=1
       ;;
     u)readonly CONTROLUSER="$OPTARG"
-      ;;
-    X)readonly PROXYMODE=1
       ;;
     esac
   done
@@ -169,11 +167,6 @@ sshTunnel() {
 }
 
 
-establishProxy() {
-  logIt I "establishProxy is empty"
-}
-
-
 showHelp() {
   cat << EOF
 
@@ -185,8 +178,6 @@ Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
   User account on server. Default=paradigm.
 -p
   Server listening port. Default=22.
--X 
-  Proxy mode.
 
 A playnode is a name to define a group of service ports,
 usually the client hostname.
