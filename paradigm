@@ -192,6 +192,8 @@ Usage: [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
   User account on server. Default=paradigm.
 -p
   Server listening port. Default=22.
+-t 
+  Test functionality using embedded default values.
 
 A playnode is a name to define a group of service ports,
 usually the client hostname.
