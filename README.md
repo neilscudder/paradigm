@@ -1,17 +1,38 @@
 # paradigm
 
-Access services on client machines in remote networks as though they are on your server's localhost. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run once every minute by a user with server credentials. 
+Access services on remote, portable, or mobile client machines as though they are on your server's localhost. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run once every minute by system cron. 
 
-<h2>Definitions</h2>
+<strong>Usage:</strong> [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
+
+-h Print this usage text.<br>
+-u User account on server. Default=paradigm.<br>
+-p Server listening port. Default=22.<br>
+-t Test functionality using embedded default values<br>
+  
+Examples:<br>
+  paradigm PlaynodeName Shell 22 control.server.com<br>
+  paradigm -u user -p 443 -l /var/lib/paradigm/log.paradigm PlaynodeName MPD 6600 control.server.com
+
+<h3>Definitions</h3>
 <ul>
   <li>ServiceName - Arbitrary name for a local service running on the client, e.g. Shell (for sshd).</li>
   <li>ServicePort - Local port that ServiceName is listening on.</li>
-  <li>Playnode - Name arbitrarily assigned to group services together. Usually the hostname of the client machine.</li>
+  <li>Playnode - Arbitrary name referring to the client machine.</li>
   <li>Portalias - Server-assigned port mapped to the reverse tunnel. This value is retrieved from a server-side flat file before each tunnel is established.</li>
 </ul>
 
+<h3>Change log 0.1 to 0.6.3</h3>
+<ul>
+  <li>Parameters moved to CLI args</li>
+  <li>Finer grain error reporting</li>
+  <li>Much better logging</li>
+  <li>More readable code</li>
+  <li>Compatible with /bin/dash</li>
+  <li>Proxy function removed, focus on core competency</li>
+  <li>Added test mode</li>
+</ul>
 
-<h2>Setup ssh-keys for authentication:</h2>
+<h3>Setup ssh-keys for authentication:</h3>
 - on the playnode, cd ~/.ssh
 - run ssh-keygen -t rsa -b 4096 -C "user@control.server.com"
 - save the files as control_rsa
@@ -24,8 +45,7 @@ Access services on client machines in remote networks as though they are on your
 
 (http://www.rebol.com/docs/ssh-auto-login.html)
 
-
-<h2>The Flat File</h2>
+<h3>The Flat File</h3>
 
 Paradigm uses a server-side flat file to store portaliases to simplify connecting and provide access to multiple services on multiple nodes. Each node is able to forward as many ports as required.
 
@@ -41,9 +61,9 @@ Syntax Example
 </pre>
 
 
-<h2>About this script</h2>
+<h3>About this script</h3>
 
-The primary reason for this script to exist is so that headless, inaccessible, portable embedded devices may remain accessible from a central server, despite changing geographic or network conditions. We are abstracting the network configuration away. Although this is useful for retaining shell access for maintenance, in the playnode system the target service is actually mpd - the music player daemon. This script facilitates reliable control of local mpd via remote server. Additionally, the SOCKS proxy function is used for use by bittorrent sync. All at once, shell, mpd and bittorrent traffic can flow encrypted through a single tcp port, from a totally firewalled unit.
+The primary reason for this script to exist is so that headless, inaccessible, portable embedded devices may remain accessible from a central server, despite changing geographic or network conditions. We are abstracting the network configuration away. Although this is useful for retaining shell access for maintenance, in the playnode system the target service is usually mpd - the music player daemon (http://www.musicpd.org/). This script facilitates reliable control of local mpd via remote server. Additionally, the SOCKS proxy function is used for use by bittorrent sync. All at once, shell, mpd and bittorrent traffic can flow encrypted through a single tcp port, from a totally firewalled unit.
 
 Server-side control of a local service allows a reduction in stress on the client unit, augmentation of data with meta data, and caching for efficient scaling to many users. For example, the music player client will do less work, because the server only makes 10 requests of it per minute, while relaying that data 10 times as often to users accessing the web site, and augmenting it with album artwork retrieved from Amazon.
 
