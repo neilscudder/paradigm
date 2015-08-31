@@ -2,7 +2,7 @@
 
 Access services on remote, portable, or mobile client machines as though they are on your server's localhost. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run once every minute by system cron. 
 
-<strong>Usage:</strong> [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
+<strong>Usage:</strong> paradigm [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
 -h Print this usage text.<br>
 -u User account on server. Default=paradigm.<br>
