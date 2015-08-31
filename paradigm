@@ -1,6 +1,6 @@
 #!/bin/sh
 # PARADIGM 0.6.3 Copyright 2015 @neilscudder
-# GNU GPL <http://www.gnu.org/licenses/>.
+# Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 
 
 main() {                     # Called at bottom of script
