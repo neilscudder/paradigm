@@ -2,8 +2,6 @@
 
 Access services on client machines in remote networks as though they are on your server's localhost. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run once every minute by a user with server credentials. 
 
-<strong>This script is not ready for public use yet.</strong> Bear with me, this is my first open-source software project.
-
 <h2>Definitions</h2>
 <ul>
   <li>ServiceName - Arbitrary name for a local service running on the client, e.g. Shell (for sshd).</li>
