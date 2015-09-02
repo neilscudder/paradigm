@@ -63,7 +63,7 @@ Syntax Example
 
 <h3>About this script</h3>
 
-The primary reason for this script to exist is so that headless, inaccessible, portable embedded devices may remain accessible from a central server, despite changing geographic or network conditions. We are abstracting the network configuration away. Although this is useful for retaining shell access for maintenance, in the playnode system the target service is usually mpd - the music player daemon (http://www.musicpd.org/). This script facilitates reliable control of local mpd via remote server. Additionally, the SOCKS proxy function is used for use by bittorrent sync. All at once, shell, mpd and bittorrent traffic can flow encrypted through a single tcp port, from a totally firewalled unit.
+The primary reason for this script to exist is so that headless, inaccessible, portable embedded devices may remain accessible from a central server, despite changing geographic or network conditions. We are abstracting the network configuration away. Although this is useful for retaining shell access for maintenance, in the playnode system the target service is usually mpd - the music player daemon (http://www.musicpd.org/). This script facilitates reliable control of local mpd via remote server.
 
 Server-side control of a local service allows a reduction in stress on the client unit, augmentation of data with meta data, and caching for efficient scaling to many users. For example, the music player client will do less work, because the server only makes 10 requests of it per minute, while relaying that data 10 times as often to users accessing the web site, and augmenting it with album artwork retrieved from Amazon.
 
