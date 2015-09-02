@@ -1,6 +1,6 @@
 #!/bin/sh
-# PARADIGM 0.6.2 Copyright 2015 @neilscudder
-# GNU GPL <http://www.gnu.org/licenses/>.
+# PARADIGM 0.6.3 Copyright 2015 @neilscudder
+# Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 
 
 main() {                     # Called at bottom of script
@@ -67,7 +67,7 @@ checkPid() {
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
 
   if [ -e "$pidFile" ]; then
-    pid=$(cat "$pidFile")
+    local pid=$(cat "$pidFile")
     logIt I "pidFile found, pid is ${pid}"
   else
     logIt W "pidFile not found."
@@ -90,7 +90,8 @@ logIt() {
   # Check if GLOBALS not set
   [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
   # Log file format:
-  a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
+  local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
+  local b=""
 
   case $1 in
     I)
@@ -111,7 +112,7 @@ logIt() {
 
 getPortalias() {
   logIt I "getPortalias"
-  portalias=$(sshPortalias) 
+  local portalias=$(sshPortalias) 
 
   if [ -z $portalias ]; then
     error_exit "Portalias var is empty."
@@ -149,7 +150,7 @@ sshPortalias() {
 establishTunnel() {
   logIt I "establishTunnel"
   portalias=$(getPortalias)
-  pid=$(sshTunnel ${portalias})
+  local pid=$(sshTunnel ${portalias})
 
   if [ -z $pid ]; then
     error_exit "pid not set."
@@ -184,7 +185,7 @@ sshTunnel() {
 showHelp() {
   cat << EOF
 
-Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
+Usage: [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
 -h
   Print this usage text.
@@ -192,6 +193,8 @@ Usage: [OPTION] PLAYNODE SERVICENAME SERVICEPORT SERVER
   User account on server. Default=paradigm.
 -p
   Server listening port. Default=22.
+-t 
+  Test functionality using embedded default values.
 
 A playnode is a name to define a group of service ports,
 usually the client hostname.
