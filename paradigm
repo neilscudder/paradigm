@@ -5,18 +5,29 @@
 
 main()                       # Called at bottom of script
 {
-  tunnelCheck "$@"
+  local configDir
+  local configFile
+  # Set user supplied config dir or use default
+  [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm"
+  
+  for configFile in "$configDir"/*; do
+    #[ -z ${PLAYNODE+x} ] && exit 1
+    [ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
+    [ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
+    [ -z ${LOGFILE+x} ] && readonly LOGFILE="$HOME/log.paradigm"
+
+    tunnelCheck
+  done
 }
 
 tunnelCheck() 
 {              
-  getOptions "$@"            # Parse user input and set GLOBALS
   logIt I "--- START ---"    # Make an Informational log entry
   checkPid                   # Check to see if the tunnel is running
   establishTunnel            # If checkPid didn't exit the script
 
   echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
-  [ $TESTER ] && tail -n40 $LOGFILE
+  tail -n40 $LOGFILE
 }
 
 
@@ -26,48 +37,6 @@ error_exit()
   exit 1                      # !!! ONLY exits subshell
 } 
 # http://linuxcommand.org/wss0150.php
-
-
-getOptions() 
-{
-  OPTIND=1
-  while getopts "hl:p:tu:" opt; do
-    case "$opt" in
-    h)showHelp
-      ;;
-    l)readonly LOGFILE="$OPTARG"
-      ;;
-    p)readonly SERVERPORT=$OPTARG
-      ;;
-    t)readonly TESTER=1
-      ;;
-    u)readonly CONTROLUSER="$OPTARG"
-      ;;
-    esac
-  done
-  shift $((OPTIND-1))
-  [ "$1" = "--" ] && shift
-  
-  if [ ! $TESTER ]; then
-    # from http://stackoverflow.com/a/13864829/5045643
-    [ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
-    [ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
-    [ -z ${LOGFILE+x} ] && readonly LOGFILE="$HOME/log.paradigm"
-    readonly PLAYNODE="$1"
-    readonly SERVICENAME="$2"
-    readonly SERVICEPORT=$3
-    readonly CONTROLSERVER="$4"
-  else
-    readonly CONTROLUSER="convict"
-    readonly SERVERPORT=42
-    readonly LOGFILE="./log.paradigm"
-    readonly PLAYNODE="Barb"
-    readonly SERVICENAME="MPD"
-    readonly SERVICEPORT=6600
-    readonly CONTROLSERVER="control"
-  fi
-}
-# http://stackoverflow.com/a/14203146
 
 
 checkPid() 
@@ -200,6 +169,7 @@ showHelp()
 {
 
 cat << EOF
+===DEPRECATED NOW USING CONFIG FILE===
 Usage: [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
 -h
