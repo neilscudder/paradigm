@@ -154,13 +154,13 @@ showHelp()
 {
 
 cat << EOF
-===DEPRECATED NOW USING CONFIG FILE===
-Usage: [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
+Usage:
+  paradigm [CONFIGDIR]
+  CONFIGDIR defaults to $HOME/.paradigm
+  Reads one service per file in the format below.
+  Run every minute to check all services and/or re-establish tunnels.
 
--h
-  Print this usage text.
-
-Examples config file ($HOME/.paradigm/Dummy-MPD.conf): 
+Example config file ($HOME/.paradigm/Dummy-MPD.conf): 
 
 CONTROLUSER="convict"
 SERVERPORT=42
