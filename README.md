@@ -56,10 +56,10 @@ File name syntax: portalias-SERVICENAME (i.e. ~/portalias-Shell)
 
 Syntax Example
 <pre>
-	Hegel^1044
-	Ricky^1025
-	Julian^1026
-	Barb^1027
+  Hegel^1044
+  Ricky^1025
+  Julian^1026
+  Barb^1027
 </pre>
 
 

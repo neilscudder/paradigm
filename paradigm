@@ -1,98 +1,43 @@
 #!/bin/sh
-# PARADIGM 0.6.3 Copyright 2015 @neilscudder
+# PARADIGM 1.0.0 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
+# CHANGING TO CONFIG FILES
 
-
-main() {                     # Called at bottom of script
-  getOptions $@              # Parse user input and set GLOBALS
-  logIt I "--- START ---"    # Make an Informational log entry
-  checkPid                   # Check to see if the tunnel is running
-  establishTunnel            # If checkPid didn't exit the script
-
-  echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
-  [ $TESTER ] && tail -n40 $LOGFILE
-}
-
-
-error_exit() {
-  logIt E "${1:-"Unknown Error"}"
-  exit 1                      # !!! ONLY exits subshell
-} 
-# http://linuxcommand.org/wss0150.php
-
-
-getOptions() {
-  OPTIND=1
-  while getopts "hl:p:tu:" opt; do
-    case "$opt" in
-    h)showHelp
-      ;;
-    l)readonly LOGFILE="$OPTARG"
-      ;;
-    p)readonly SERVERPORT=$OPTARG
-      ;;
-    t)readonly TESTER=1
-      ;;
-    u)readonly CONTROLUSER="$OPTARG"
-      ;;
-    esac
-  done
-  shift $((OPTIND-1))
-  [ "$1" = "--" ] && shift
+main()                       # Called at bottom of script
+{
+  local configDir
+  local configFile
+  # Set user supplied config dir or use default
+  [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm/"
   
-  if [ ! $TESTER ]; then
-    # from http://stackoverflow.com/a/13864829/5045643
-    [ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
-    [ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
-    [ -z ${LOGFILE+x} ] && readonly LOGFILE="$HOME/log.paradigm"
-    readonly PLAYNODE="$1"
-    readonly SERVICENAME="$2"
-    readonly SERVICEPORT=$3
-    readonly CONTROLSERVER="$4"
-  else
-    readonly CONTROLUSER="convict"
-    readonly SERVERPORT=42
-    readonly LOGFILE="./log.paradigm"
-    readonly PLAYNODE="Barb"
-    readonly SERVICENAME="MPD"
-    readonly SERVICEPORT=6600
-    readonly CONTROLSERVER="control"
-  fi
-}
-# http://stackoverflow.com/a/14203146
-
-
-checkPid() {
-  logIt I "checkPid"
-  local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-
-  if [ -e "$pidFile" ]; then
-    local pid=$(cat "$pidFile")
-    logIt I "pidFile found, pid is ${pid}"
-  else
-    logIt W "pidFile not found."
-  fi
-
-  if [ $pid ]; then
-    logIt I "$pid found"
-    if kill -0 $pid; then
-      logIt I "pid running, exiting script."
-      exit 0
-    else
-      rm -f ${pidfile}
-      logIt W "pid not found running"
-    fi
-  fi
+  # Check each tunnel as specified in each config file
+  for configFile in "$configDir"/*; do
+    # bashism source cmd becomes .
+    . $configFile
+    # if this var isnt set then abort
+    [ -z ${PLAYNODE+x} ] && error_exit "PLAYNODE not read from config file"
+    # set defaults if not set or empty
+    [ -z ${CONTROLUSER+x} ] && CONTROLUSER="paradigm"
+    [ -z ${SERVERPORT+x} ] && SERVERPORT=22
+    [ -z ${LOGFILE+x} ] && LOGFILE="$HOME/log.paradigm"
+    logIt I "---START---"
+    tunnelCheck
+  done
 }
 
+error_exit() 
+{
+  logIt E "${1:-"Unknown Error"}"
+  exit 1
+}
 
-logIt() {
+logIt() 
+{
   # Check if GLOBALS not set
   [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
   # Log file format:
   local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
   local b=""
-
   case $1 in
     I)
       b="${a}II"
@@ -105,55 +50,42 @@ logIt() {
       #echo "${b} - ${2}" 1>&2
     ;;
   esac
-
   echo "${b} - ${2}" >> $LOGFILE
 }
 
+tunnelCheck() 
+{              
+  logIt I "tunnelCheck"
+  local pidFile=/tmp/paradigm-${SERVICENAME}.pid
 
-getPortalias() {
-  logIt I "getPortalias"
-  local portalias=$(sshPortalias) 
-
-  if [ -z $portalias ]; then
-    error_exit "Portalias var is empty."
+  if [ -e "$pidFile" ]; then
+    local pid=$(cat "$pidFile")
+    logIt I "pidFile found, pid is ${pid}"
   else
-    logIt I "Portalias is ${portalias}"
-    # Return the value:
-    echo "$portalias"
+    logIt W "pidFile not found"
+    establishTunnel
+  fi
+
+  if [ $pid ]; then
+    logIt I "$pid found"
+    if kill -0 $pid; then
+      logIt I "pid running, exiting"
+    else
+      rm -f ${pidfile}
+      logIt W "pid not found running"
+      establishTunnel
+    fi
   fi
 }
 
-
-sshPortalias() {
-  local remoteCmd="\
-    cat \
-    'portalias-${SERVICENAME}' \
-    | grep '^${PLAYNODE}' \
-    | /usr/bin/cut -d^ -f2"
-
-  /usr/bin/ssh \
-    -q \
-    -p ${SERVERPORT} \
-    -o ConnectTimeout=5 \
-    -o ControlMaster=no \
-    ${CONTROLUSER}@${CONTROLSERVER} \
-    "${remoteCmd}"
-
-  if [ "$?" = "0" ] ; then
-    logIt I "sshPortalias success."
-  else
-    error_exit "sshPortalias failed."
-  fi
-}
-
-
-establishTunnel() {
+establishTunnel() 
+{
   logIt I "establishTunnel"
   portalias=$(getPortalias)
   local pid=$(sshTunnel ${portalias})
 
   if [ -z $pid ]; then
-    error_exit "pid not set."
+    error_exit "pid not set"
   else
     logIt I "pid is ${pid}"
     local pidFile=/tmp/paradigm-${SERVICENAME}.pid
@@ -161,8 +93,8 @@ establishTunnel() {
   fi
 }
 
-
-sshTunnel() {
+sshTunnel() 
+{
   portalias="$1"
 
   /usr/bin/ssh \
@@ -181,37 +113,66 @@ sshTunnel() {
   # Echo returns the value
 }
 
+getPortalias() 
+{
+  logIt I "getPortalias"
+  local portalias=$(sshPortalias) 
 
-showHelp() {
-  cat << EOF
+  if [ -z $portalias ]; then
+    error_exit "Portalias var is empty"
+  else
+    logIt I "Portalias is ${portalias}"
+    # Return the value:
+    echo "$portalias"
+  fi
+}
 
+sshPortalias() 
+{
+  local remoteCmd="\
+    cat \
+    'portalias-${SERVICENAME}' \
+    | grep '^${PLAYNODE}' \
+    | /usr/bin/cut -d^ -f2"
+
+  /usr/bin/ssh \
+    -q \
+    -p ${SERVERPORT} \
+    -o ConnectTimeout=5 \
+    -o ControlMaster=no \
+    ${CONTROLUSER}@${CONTROLSERVER} \
+    "${remoteCmd}"
+
+  if [ "$?" = "0" ] ; then
+    logIt I "sshPortalias success"
+  else
+    error_exit "sshPortalias failed"
+  fi
+}
+
+showHelp() 
+{
+
+cat << EOF
+===DEPRECATED NOW USING CONFIG FILE===
 Usage: [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
 -h
   Print this usage text.
--u 
-  User account on server. Default=paradigm.
--p
-  Server listening port. Default=22.
--t 
-  Test functionality using embedded default values.
 
-A playnode is a name to define a group of service ports,
-usually the client hostname.
-User account on remote server with shell access required.
-Server side flatfile is named portalias-SERVICENAME.
-Formatted one playnode per line like this: dummy^32767
-Where dummy is the playnode name, and 32767 is the portalias.
+Examples config file ($HOME/.paradigm/Dummy-MPD.conf): 
 
-Examples: 
-  paradigm PlaynodeName Shell 22 control.server.com
-  paradigm -u user -p 443 -l /var/lib/paradigm/log.paradigm \
-PlaynodeName MPD 6600 control.server.com
+CONTROLUSER="convict"
+SERVERPORT=42
+LOGFILE="./log.paradigm"
+PLAYNODE="Dummy"
+SERVICENAME="MPD"
+SERVICEPORT=6600
+CONTROLSERVER="control"
 
 EOF
-  exit 0
+exit 0
 }
-
 
 # Call the first function to start
 main $@
