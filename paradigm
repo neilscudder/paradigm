@@ -10,6 +10,7 @@ main()                       # Called at bottom of script
   # Set user supplied config dir or use default
   [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm/"
   
+  # Check each tunnel as specified in each config file
   for configFile in "$configDir"/*; do
     # bashism source cmd becomes .
     . $configFile
@@ -22,6 +23,35 @@ main()                       # Called at bottom of script
     logIt I "---START---"
     tunnelCheck
   done
+}
+
+error_exit() 
+{
+  logIt E "${1:-"Unknown Error"}"
+  exit 1
+}
+
+
+logIt() 
+{
+  # Check if GLOBALS not set
+  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
+  # Log file format:
+  local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
+  local b=""
+  case $1 in
+    I)
+      b="${a}II"
+    ;;
+    W)
+      b="${a}WW"
+    ;;
+    E)
+      b="${a}EE"
+      #echo "${b} - ${2}" 1>&2
+    ;;
+  esac
+  echo "${b} - ${2}" >> $LOGFILE
 }
 
 tunnelCheck() 
@@ -49,35 +79,39 @@ tunnelCheck()
   fi
 }
 
-error_exit() 
+establishTunnel() 
 {
-  logIt E "${1:-"Unknown Error"}"
-  exit 1                     # !!! ONLY exits subshell
-} 
-# http://linuxcommand.org/wss0150.php
+  logIt I "establishTunnel"
+  portalias=$(getPortalias)
+  local pid=$(sshTunnel ${portalias})
 
-logIt() 
+  if [ -z $pid ]; then
+    error_exit "pid not set"
+  else
+    logIt I "pid is ${pid}"
+    local pidFile=/tmp/paradigm-${SERVICENAME}.pid
+    echo "$pid" > "$pidFile"
+  fi
+}
+
+sshTunnel() 
 {
-  # Check if GLOBALS not set
-  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
-  # Log file format:
-  local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
-  local b=""
+  portalias="$1"
 
-  case $1 in
-    I)
-      b="${a}II"
-    ;;
-    W)
-      b="${a}WW"
-    ;;
-    E)
-      b="${a}EE"
-      #echo "${b} - ${2}" 1>&2
-    ;;
-  esac
-
-  echo "${b} - ${2}" >> $LOGFILE
+  /usr/bin/ssh \
+    -q \
+    -N \
+    -p ${SERVERPORT} \
+    -o ConnectTimeout=3 \
+    -o ServerAliveCountMax=2 \
+    -o ServerAliveInterval=45 \
+    -o ControlMaster=no \
+    -o ExitOnForwardFailure=yes \
+    -R ${portalias}:localhost:${SERVICEPORT} \
+    ${CONTROLUSER}@${CONTROLSERVER} \
+    >> /dev/null 2>&1 \
+    & echo "$!"
+  # Echo returns the value
 }
 
 getPortalias() 
@@ -115,41 +149,6 @@ sshPortalias()
   else
     error_exit "sshPortalias failed"
   fi
-}
-
-establishTunnel() 
-{
-  logIt I "establishTunnel"
-  portalias=$(getPortalias)
-  local pid=$(sshTunnel ${portalias})
-
-  if [ -z $pid ]; then
-    error_exit "pid not set"
-  else
-    logIt I "pid is ${pid}"
-    local pidFile=/tmp/paradigm-${SERVICENAME}.pid
-    echo "$pid" > "$pidFile"
-  fi
-}
-
-sshTunnel() 
-{
-  portalias="$1"
-
-  /usr/bin/ssh \
-    -q \
-    -N \
-    -p ${SERVERPORT} \
-    -o ConnectTimeout=3 \
-    -o ServerAliveCountMax=2 \
-    -o ServerAliveInterval=45 \
-    -o ControlMaster=no \
-    -o ExitOnForwardFailure=yes \
-    -R ${portalias}:localhost:${SERVICEPORT} \
-    ${CONTROLUSER}@${CONTROLSERVER} \
-    >> /dev/null 2>&1 \
-    & echo "$!"
-  # Echo returns the value
 }
 
 showHelp() 
