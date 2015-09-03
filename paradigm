@@ -34,7 +34,7 @@ error_exit()
 logIt() 
 {
   # Check if GLOBALS not set
-  [ -z ${PLAYNODE+x} ] && logIt E "PLAYNODE not set!"
+  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
   # Log file format:
   local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
   local b=""
