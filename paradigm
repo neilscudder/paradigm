@@ -11,12 +11,14 @@ main()                       # Called at bottom of script
   [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm/"
   
   for configFile in "$configDir"/*; do
+    # bashism source cmd becomes .
     . $configFile
-    #[ -z ${PLAYNODE+x} ] && exit 1
+    # if this var isnt set then abort
+    [ -z ${PLAYNODE+x} ] && exit 1
+    # set defaults if not set or empty
     [ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
     [ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
     [ -z ${LOGFILE+x} ] && readonly LOGFILE="$HOME/log.paradigm"
-
     tunnelCheck
   done
 }
@@ -26,9 +28,6 @@ tunnelCheck()
   logIt I "--- START ---"    # Make an Informational log entry
   checkPid                   # Check to see if the tunnel is running
   establishTunnel            # If checkPid didn't exit the script
-
-  echo "Paradigm for ${SERVICENAME} logged to ${LOGFILE}"
-  tail -n40 $LOGFILE
 }
 
 
