@@ -3,8 +3,8 @@
 Access services on remote, portable, or mobile client machines as though they are on your server's localhost. Tunnels encrypted over ssh forward local ports securly to the server. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run once every minute by system cron. 
 
 Usage:<br>
-&nbsp;&nbsp;paradigm [CONFIG DIRECTORY]<br>
-&nbsp;&nbsp;Defaults to $HOME/.paradigm<br>
+&nbsp;&nbsp;paradigm [CONFIGDIR]<br>
+&nbsp;&nbsp;CONFIGDIR defaults to $HOME/.paradigm<br>
 &nbsp;&nbsp;Reads one service per file in the format below.<br>
 &nbsp;&nbsp;Run every minute to check all services and/or re-establish tunnels.
 
