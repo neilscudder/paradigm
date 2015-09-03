@@ -7,7 +7,7 @@ Installation:<br>
 Set to run once per minute in user crontab:<br>
 &nbsp;&nbsp;*/1 * * * *  /usr/bin/paradigm -u convict Playnode Shell 22 control  >> /dev/null 2>&1<br>
 
-Usage:
+Usage:<br>
 &nbsp;&nbsp;paradigm [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
 &nbsp;&nbsp;-h Print this usage text.<br>
