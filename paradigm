@@ -1,10 +1,16 @@
 #!/bin/sh
-# PARADIGM 0.6.3 Copyright 2015 @neilscudder
+# PARADIGM 0.6.4 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
+# CHANGING TO CONFIG FILES
 
+main()                       # Called at bottom of script
+{
+  main "$@"
+}
 
-main() {                     # Called at bottom of script
-  getOptions $@              # Parse user input and set GLOBALS
+tunnelCheck() 
+{              
+  getOptions "$@"            # Parse user input and set GLOBALS
   logIt I "--- START ---"    # Make an Informational log entry
   checkPid                   # Check to see if the tunnel is running
   establishTunnel            # If checkPid didn't exit the script
@@ -14,14 +20,16 @@ main() {                     # Called at bottom of script
 }
 
 
-error_exit() {
+error_exit() 
+{
   logIt E "${1:-"Unknown Error"}"
   exit 1                      # !!! ONLY exits subshell
 } 
 # http://linuxcommand.org/wss0150.php
 
 
-getOptions() {
+getOptions() 
+{
   OPTIND=1
   while getopts "hl:p:tu:" opt; do
     case "$opt" in
@@ -62,7 +70,8 @@ getOptions() {
 # http://stackoverflow.com/a/14203146
 
 
-checkPid() {
+checkPid() 
+{
   logIt I "checkPid"
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
 
@@ -86,7 +95,8 @@ checkPid() {
 }
 
 
-logIt() {
+logIt() 
+{
   # Check if GLOBALS not set
   [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
   # Log file format:
@@ -110,7 +120,8 @@ logIt() {
 }
 
 
-getPortalias() {
+getPortalias() 
+{
   logIt I "getPortalias"
   local portalias=$(sshPortalias) 
 
@@ -124,7 +135,8 @@ getPortalias() {
 }
 
 
-sshPortalias() {
+sshPortalias() 
+{
   local remoteCmd="\
     cat \
     'portalias-${SERVICENAME}' \
@@ -147,7 +159,8 @@ sshPortalias() {
 }
 
 
-establishTunnel() {
+establishTunnel() 
+{
   logIt I "establishTunnel"
   portalias=$(getPortalias)
   local pid=$(sshTunnel ${portalias})
@@ -162,7 +175,8 @@ establishTunnel() {
 }
 
 
-sshTunnel() {
+sshTunnel() 
+{
   portalias="$1"
 
   /usr/bin/ssh \
@@ -182,9 +196,10 @@ sshTunnel() {
 }
 
 
-showHelp() {
-  cat << EOF
+showHelp() 
+{
 
+cat << EOF
 Usage: [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
 -h
@@ -209,7 +224,7 @@ Examples:
 PlaynodeName MPD 6600 control.server.com
 
 EOF
-  exit 0
+exit 0
 }
 
 
