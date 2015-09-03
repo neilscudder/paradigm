@@ -3,9 +3,9 @@
 Access services on remote, portable, or mobile client machines as though they are on your server's localhost. Tunnels encrypted over ssh forward local ports securly to the server. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run once every minute by system cron. 
 
 Installation:<br>
-<&nbsp;><&nbsp;>chmod a+x ./paradigm; cp paradigm /usr/bin [or somewhere in your bin path]<br>
+&nbsp;&nbsp;chmod a+x ./paradigm; cp paradigm /usr/bin [or somewhere in your bin path]<br>
 Set to run once per minute in user crontab:<br>
-<&nbsp;><&nbsp;>*/1 * * * *  /usr/bin/paradigm -u convict Playnode Shell 22 control  >> /dev/null 2>&1<br>
+&nbsp;&nbsp;*/1 * * * *  /usr/bin/paradigm -u convict Playnode Shell 22 control  >> /dev/null 2>&1<br>
 
 <strong>Usage:</strong> paradigm [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
