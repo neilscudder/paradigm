@@ -16,9 +16,9 @@ main()                       # Called at bottom of script
     # if this var isnt set then abort
     [ -z ${PLAYNODE+x} ] && exit 1
     # set defaults if not set or empty
-    [ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
-    [ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
-    [ -z ${LOGFILE+x} ] && readonly LOGFILE="$HOME/log.paradigm"
+    [ -z ${CONTROLUSER+x} ] && CONTROLUSER="paradigm"
+    [ -z ${SERVERPORT+x} ] && SERVERPORT=22
+    [ -z ${LOGFILE+x} ] && LOGFILE="$HOME/log.paradigm"
     tunnelCheck
   done
 }
@@ -26,15 +26,14 @@ main()                       # Called at bottom of script
 tunnelCheck() 
 {              
   logIt I "--- START ---"    # Make an Informational log entry
-  [ $(checkPid) ] || establishTunnel                  
-# Check to see if the tunnel is running
+  checkPid                   # Check to see if the tunnel is running
 }
 
 
 error_exit() 
 {
   logIt E "${1:-"Unknown Error"}"
-  exit 1                      # !!! ONLY exits subshell
+  exit 1                     # !!! ONLY exits subshell
 } 
 # http://linuxcommand.org/wss0150.php
 
@@ -48,17 +47,18 @@ checkPid()
     local pid=$(cat "$pidFile")
     logIt I "pidFile found, pid is ${pid}"
   else
-    logIt W "pidFile not found."
+    logIt W "pidFile not found"
+    establishTunnel
   fi
 
   if [ $pid ]; then
     logIt I "$pid found"
     if kill -0 $pid; then
-      logIt I "pid running, exiting script."
-      exit 0
+      logIt I "pid running, exiting"
     else
       rm -f ${pidfile}
       logIt W "pid not found running"
+      establishTunnel
     fi
   fi
 }
@@ -95,7 +95,7 @@ getPortalias()
   local portalias=$(sshPortalias) 
 
   if [ -z $portalias ]; then
-    error_exit "Portalias var is empty."
+    error_exit "Portalias var is empty"
   else
     logIt I "Portalias is ${portalias}"
     # Return the value:
@@ -121,9 +121,9 @@ sshPortalias()
     "${remoteCmd}"
 
   if [ "$?" = "0" ] ; then
-    logIt I "sshPortalias success."
+    logIt I "sshPortalias success"
   else
-    error_exit "sshPortalias failed."
+    error_exit "sshPortalias failed"
   fi
 }
 
@@ -135,7 +135,7 @@ establishTunnel()
   local pid=$(sshTunnel ${portalias})
 
   if [ -z $pid ]; then
-    error_exit "pid not set."
+    error_exit "pid not set"
   else
     logIt I "pid is ${pid}"
     local pidFile=/tmp/paradigm-${SERVICENAME}.pid
@@ -174,24 +174,16 @@ Usage: [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
 -h
   Print this usage text.
--u 
-  User account on server. Default=paradigm.
--p
-  Server listening port. Default=22.
--t 
-  Test functionality using embedded default values.
 
-A playnode is a name to define a group of service ports,
-usually the client hostname.
-User account on remote server with shell access required.
-Server side flatfile is named portalias-SERVICENAME.
-Formatted one playnode per line like this: dummy^32767
-Where dummy is the playnode name, and 32767 is the portalias.
+Examples config file ($HOME/.paradigm/Dummy-MPD.conf): 
 
-Examples: 
-  paradigm PlaynodeName Shell 22 control.server.com
-  paradigm -u user -p 443 -l /var/lib/paradigm/log.paradigm \
-PlaynodeName MPD 6600 control.server.com
+CONTROLUSER="convict"
+SERVERPORT=42
+LOGFILE="./log.paradigm"
+PLAYNODE="Dummy"
+SERVICENAME="MPD"
+SERVICEPORT=6600
+CONTROLSERVER="control"
 
 EOF
 exit 0
