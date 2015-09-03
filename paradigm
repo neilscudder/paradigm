@@ -1,5 +1,5 @@
 #!/bin/sh
-# PARADIGM 0.6.4 Copyright 2015 @neilscudder
+# PARADIGM 1.0.0 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 # CHANGING TO CONFIG FILES
 
@@ -15,7 +15,7 @@ main()                       # Called at bottom of script
     # bashism source cmd becomes .
     . $configFile
     # if this var isnt set then abort
-    [ -z ${PLAYNODE+x} ] && exit 1
+    [ -z ${PLAYNODE+x} ] && error_exit "PLAYNODE not read from config file"
     # set defaults if not set or empty
     [ -z ${CONTROLUSER+x} ] && CONTROLUSER="paradigm"
     [ -z ${SERVERPORT+x} ] && SERVERPORT=22
@@ -30,7 +30,6 @@ error_exit()
   logIt E "${1:-"Unknown Error"}"
   exit 1
 }
-
 
 logIt() 
 {
