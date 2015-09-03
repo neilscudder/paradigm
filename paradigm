@@ -5,7 +5,7 @@
 
 main()                       # Called at bottom of script
 {
-  main "$@"
+  tunnelCheck "$@"
 }
 
 tunnelCheck() 
