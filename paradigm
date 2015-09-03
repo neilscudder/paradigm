@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # PARADIGM 0.6.4 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 # CHANGING TO CONFIG FILES
@@ -11,7 +11,7 @@ main()                       # Called at bottom of script
   [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm/"
   
   for configFile in "$configDir"/*; do
-    source $configFile
+    . $configFile
     #[ -z ${PLAYNODE+x} ] && exit 1
     [ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
     [ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
