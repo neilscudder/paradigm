@@ -11,6 +11,7 @@ main()                       # Called at bottom of script
   [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm"
   
   for configFile in "$configDir"/*; do
+    source $configFile
     #[ -z ${PLAYNODE+x} ] && exit 1
     [ -z ${CONTROLUSER+x} ] && readonly CONTROLUSER="paradigm"
     [ -z ${SERVERPORT+x} ] && readonly SERVERPORT=22
