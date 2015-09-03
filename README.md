@@ -3,18 +3,18 @@
 Access services on remote, portable, or mobile client machines as though they are on your server's localhost. Tunnels encrypted over ssh forward local ports securly to the server. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run once every minute by system cron. 
 
 Usage:<br>
-&nbsp;&nbsp;paradigm [CONFIG DIRECTORY]
-&nbsp;&nbsp;Defaults to $HOME/.paradigm
-&nbsp;&nbsp;Reads one service per file in the format below.
+&nbsp;&nbsp;paradigm [CONFIG DIRECTORY]<br>
+&nbsp;&nbsp;Defaults to $HOME/.paradigm<br>
+&nbsp;&nbsp;Reads one service per file in the format below.<br>
 &nbsp;&nbsp;Run every minute to check all services and/or re-establish tunnels.
 
 Example config file ($HOME/.paradigm/Dummy-MPD.conf): <br>
-&nbsp;&nbsp;CONTROLUSER="convict"
-&nbsp;&nbsp;SERVERPORT=42
-&nbsp;&nbsp;LOGFILE="./log.paradigm"
-&nbsp;&nbsp;PLAYNODE="Dummy"
-&nbsp;&nbsp;SERVICENAME="MPD"
-&nbsp;&nbsp;SERVICEPORT=6600
+&nbsp;&nbsp;CONTROLUSER="convict"<br>
+&nbsp;&nbsp;SERVERPORT=42<br>
+&nbsp;&nbsp;LOGFILE="./log.paradigm"<br>
+&nbsp;&nbsp;PLAYNODE="Dummy"<br>
+&nbsp;&nbsp;SERVICENAME="MPD"<br>
+&nbsp;&nbsp;SERVICEPORT=6600<br>
 &nbsp;&nbsp;CONTROLSERVER="control"
 
 Installation:<br>
