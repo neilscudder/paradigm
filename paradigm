@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # PARADIGM 0.6.4 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 # CHANGING TO CONFIG FILES
@@ -8,7 +8,7 @@ main()                       # Called at bottom of script
   local configDir
   local configFile
   # Set user supplied config dir or use default
-  [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm"
+  [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm/"
   
   for configFile in "$configDir"/*; do
     source $configFile
