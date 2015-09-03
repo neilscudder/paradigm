@@ -9,13 +9,13 @@ main()                       # Called at bottom of script
   local configFile
   # Set user supplied config dir or use default
   [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm/"
-  
+  [ ! -e $configDir ] && showHelp "Config dir (${configDir}) does not exist!"
   # Check each tunnel as specified in each config file
   for configFile in "$configDir"/*; do
     # bashism source cmd becomes .
     . $configFile
     # if this var isnt set then abort
-    [ -z ${PLAYNODE+x} ] && error_exit "PLAYNODE not read from config file"
+    [ -z ${PLAYNODE+x} ] && showHelp "PLAYNODE not read from config file"
     # set defaults if not set or empty
     [ -z ${CONTROLUSER+x} ] && CONTROLUSER="paradigm"
     [ -z ${SERVERPORT+x} ] && SERVERPORT=22
@@ -34,7 +34,7 @@ error_exit()
 logIt() 
 {
   # Check if GLOBALS not set
-  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
+  [ -z ${PLAYNODE+x} ] && logIt E "PLAYNODE not set!"
   # Log file format:
   local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
   local b=""
@@ -152,8 +152,12 @@ sshPortalias()
 
 showHelp() 
 {
+  #logIt E "showHelp"
+  echo "ERROR:
 
-cat << EOF
+  $1
+  "
+  cat << EOF
 Usage:
   paradigm [CONFIGDIR]
   CONFIGDIR defaults to $HOME/.paradigm
@@ -171,7 +175,7 @@ SERVICEPORT=6600
 CONTROLSERVER="control"
 
 EOF
-exit 0
+  exit 1
 }
 
 # Call the first function to start
