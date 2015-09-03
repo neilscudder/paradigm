@@ -1,5 +1,5 @@
 #!/bin/sh
-# PARADIGM 1.0.0 Copyright 2015 @neilscudder
+# PARADIGM 1.0.1 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 # CHANGING TO CONFIG FILES
 
@@ -7,16 +7,16 @@ main()                       # Called at bottom of script
 {
   local configDir
   local configFile
-  # Set user supplied config dir or use default
+# Set user supplied config dir or use default
   [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm/"
   [ ! -e $configDir ] && showHelp "Config dir (${configDir}) does not exist!"
-  # Check each tunnel as specified in each config file
+# Check each tunnel as specified in each config file
   for configFile in "$configDir"/*; do
-    # bashism source cmd becomes .
+# bashism source cmd becomes .
     . $configFile
-    # if this var isnt set then abort
+# if this var isnt set then abort
     [ -z ${PLAYNODE+x} ] && showHelp "PLAYNODE not read from config file"
-    # set defaults if not set or empty
+# set defaults if not set or empty
     [ -z ${CONTROLUSER+x} ] && CONTROLUSER="paradigm"
     [ -z ${SERVERPORT+x} ] && SERVERPORT=22
     [ -z ${LOGFILE+x} ] && LOGFILE="$HOME/log.paradigm"
@@ -33,9 +33,9 @@ error_exit()
 
 logIt() 
 {
-  # Check if GLOBALS not set
+# Check if GLOBALS not set
   [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
-  # Log file format:
+# Log file format:
   local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
   local b=""
   case $1 in
@@ -47,7 +47,6 @@ logIt()
     ;;
     E)
       b="${a}EE"
-      #echo "${b} - ${2}" 1>&2
     ;;
   esac
   echo "${b} - ${2}" >> $LOGFILE
@@ -110,7 +109,7 @@ sshTunnel()
     ${CONTROLUSER}@${CONTROLSERVER} \
     >> /dev/null 2>&1 \
     & echo "$!"
-  # Echo returns the value
+# Echo returns the value
 }
 
 getPortalias() 
@@ -122,7 +121,7 @@ getPortalias()
     error_exit "Portalias var is empty"
   else
     logIt I "Portalias is ${portalias}"
-    # Return the value:
+# Return the value:
     echo "$portalias"
   fi
 }
@@ -152,7 +151,6 @@ sshPortalias()
 
 showHelp() 
 {
-  #logIt E "showHelp"
   echo "ERROR:
 
   $1
