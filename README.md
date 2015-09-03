@@ -9,14 +9,14 @@ Set to run once per minute in user crontab:<br>
 
 <strong>Usage:</strong> paradigm [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
--h Print this usage text.<br>
--u User account on server. (Default=paradigm.)<br>
--p Server listening port. (Default=22.)<br>
--t Test shortcut using embedded values<br>
+&nbsp;&nbsp;-h Print this usage text.<br>
+&nbsp;&nbsp;-u User account on server. (Default=paradigm.)<br>
+&nbsp;&nbsp;-p Server listening port. (Default=22.)<br>
+&nbsp;&nbsp;-t Test shortcut using embedded values<br>
   
 Examples:<br>
-  paradigm Playnode Shell 22 server.ca<br>
-  paradigm -u user -p 443 -l ./log.paradigm Playnode MPD 6600 server.ca
+&nbsp;&nbsp;paradigm Playnode Shell 22 server.ca<br>
+&nbsp;&nbsp;paradigm -u user -p 443 -l ./log.paradigm Playnode MPD 6600 server.ca
 
 <h3>Definitions</h3>
 <ul>
