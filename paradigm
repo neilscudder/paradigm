@@ -26,8 +26,8 @@ main()                       # Called at bottom of script
 tunnelCheck() 
 {              
   logIt I "--- START ---"    # Make an Informational log entry
-  checkPid                   # Check to see if the tunnel is running
-  establishTunnel            # If checkPid didn't exit the script
+  [ $(checkPid) ] || establishTunnel                  
+# Check to see if the tunnel is running
 }
 
 
