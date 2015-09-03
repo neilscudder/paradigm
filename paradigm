@@ -19,28 +19,14 @@ main()                       # Called at bottom of script
     [ -z ${CONTROLUSER+x} ] && CONTROLUSER="paradigm"
     [ -z ${SERVERPORT+x} ] && SERVERPORT=22
     [ -z ${LOGFILE+x} ] && LOGFILE="$HOME/log.paradigm"
+    logIt I "---START---"
     tunnelCheck
   done
 }
 
 tunnelCheck() 
 {              
-  logIt I "--- START ---"    # Make an Informational log entry
-  checkPid                   # Check to see if the tunnel is running
-}
-
-
-error_exit() 
-{
-  logIt E "${1:-"Unknown Error"}"
-  exit 1                     # !!! ONLY exits subshell
-} 
-# http://linuxcommand.org/wss0150.php
-
-
-checkPid() 
-{
-  logIt I "checkPid"
+  logIt I "tunnelCheck"
   local pidFile=/tmp/paradigm-${SERVICENAME}.pid
 
   if [ -e "$pidFile" ]; then
@@ -63,6 +49,12 @@ checkPid()
   fi
 }
 
+error_exit() 
+{
+  logIt E "${1:-"Unknown Error"}"
+  exit 1                     # !!! ONLY exits subshell
+} 
+# http://linuxcommand.org/wss0150.php
 
 logIt() 
 {
@@ -88,7 +80,6 @@ logIt()
   echo "${b} - ${2}" >> $LOGFILE
 }
 
-
 getPortalias() 
 {
   logIt I "getPortalias"
@@ -102,7 +93,6 @@ getPortalias()
     echo "$portalias"
   fi
 }
-
 
 sshPortalias() 
 {
@@ -127,7 +117,6 @@ sshPortalias()
   fi
 }
 
-
 establishTunnel() 
 {
   logIt I "establishTunnel"
@@ -142,7 +131,6 @@ establishTunnel()
     echo "$pid" > "$pidFile"
   fi
 }
-
 
 sshTunnel() 
 {
@@ -163,7 +151,6 @@ sshTunnel()
     & echo "$!"
   # Echo returns the value
 }
-
 
 showHelp() 
 {
@@ -188,7 +175,6 @@ CONTROLSERVER="control"
 EOF
 exit 0
 }
-
 
 # Call the first function to start
 main $@
