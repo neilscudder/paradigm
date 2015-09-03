@@ -30,30 +30,6 @@ Set to run once per minute in user crontab:<br>
   <li>Portalias - Server-assigned port mapped to the reverse tunnel. This value is retrieved from a server-side flat file before each tunnel is established.</li>
 </ul>
 
-<h3>Change log 0.1 to 0.6.3</h3>
-<ul>
-  <li>Parameters moved to CLI args</li>
-  <li>Finer grain error reporting</li>
-  <li>Much better logging</li>
-  <li>More readable code</li>
-  <li>Compatible with /bin/dash</li>
-  <li>Proxy function removed, focus on core competency</li>
-  <li>Added test mode</li>
-</ul>
-
-<h3>Setup ssh-keys for authentication:</h3>
-- on the playnode, cd ~/.ssh
-- run ssh-keygen -t rsa -b 4096 -C "user@control.server.com"
-- save the files as control_rsa
-- enter no passphrase
-- ssh user@control.server.com 'mkdir .ssh'
-- cat control_rsa.pub | ssh user@control.server.com 'cat >> .ssh/authorized_keys'
-- echo "Host control.server.com" >> config
-- echo "Hostname control.server.com" >> config
-- echo "IdentityFile ~/.ssh/control_rsa" >> config
-
-(http://www.rebol.com/docs/ssh-auto-login.html)
-
 <h3>The Flat File</h3>
 
 Paradigm uses a server-side flat file to store portaliases to simplify connecting and provide access to multiple services on multiple nodes. Each node is able to forward as many ports as required.
@@ -69,6 +45,37 @@ Syntax Example
   Barb^1027
 </pre>
 
+<h3>Setup ssh-keys for authentication:</h3>
+- on the playnode, cd ~/.ssh
+- run ssh-keygen -t rsa -b 4096 -C "user@control.server.com"
+- save the files as control_rsa
+- enter no passphrase
+- ssh user@control.server.com 'mkdir .ssh'
+- cat control_rsa.pub | ssh user@control.server.com 'cat >> .ssh/authorized_keys'
+- echo "Host control.server.com" >> config
+- echo "Hostname control.server.com" >> config
+- echo "IdentityFile ~/.ssh/control_rsa" >> config
+
+(http://www.rebol.com/docs/ssh-auto-login.html)
+
+<h3>Changelog 0.6.3 - 1.0.0</h3>
+<ul>
+  <li>CLI args deprecated</li>
+  <li>Config files now read from directory</li>
+  <li>Major version change</li>
+  <li>Switch to semantic versioning</li>
+  <li>Removed test mode</li>
+</ul>
+<h3>Changelog 0.1 - 0.6.3</h3>
+<ul>
+  <li>Parameters moved to CLI args</li>
+  <li>Finer grain error reporting</li>
+  <li>Much better logging</li>
+  <li>More readable code</li>
+  <li>Compatible with /bin/dash</li>
+  <li>Proxy function removed, focus on core competency</li>
+  <li>Added test mode</li>
+</ul>
 
 <h3>About this script</h3>
 
