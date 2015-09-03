@@ -2,16 +2,18 @@
 
 Access services on remote, portable, or mobile client machines as though they are on your server's localhost. Tunnels encrypted over ssh forward local ports securly to the server. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run once every minute by system cron. 
 
-<strong>Usage:</strong> paradigm [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
+Usage:<br>
+&nbsp;&nbsp;paradigm [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
 
--h Print this usage text.<br>
--u User account on server. Default=paradigm.<br>
--p Server listening port. Default=22.<br>
--t Test functionality using embedded default values<br>
-  
-Examples:<br>
-  paradigm PlaynodeName Shell 22 control.server.com<br>
-  paradigm -u user -p 443 -l /var/lib/paradigm/log.paradigm PlaynodeName MPD 6600 control.server.com
+&nbsp;&nbsp;-h Print this usage text.<br>
+&nbsp;&nbsp;-u User account on server. (Default=paradigm.)<br>
+&nbsp;&nbsp;-p Server listening port. (Default=22.)<br>
+&nbsp;&nbsp;-t Test shortcut using embedded values<br>
+
+Installation:<br>
+&nbsp;&nbsp;chmod a+x ./paradigm; cp paradigm /usr/bin [or somewhere in your bin path]<br>
+Set to run once per minute in user crontab:<br>
+&nbsp;&nbsp;*/1 * * * *  /usr/bin/paradigm -u convict Playnode Shell 22 control  >> /dev/null 2>&1<br>
 
 <h3>Definitions</h3>
 <ul>
@@ -54,10 +56,10 @@ File name syntax: portalias-SERVICENAME (i.e. ~/portalias-Shell)
 
 Syntax Example
 <pre>
-	Hegel^1044
-	Ricky^1025
-	Julian^1026
-	Barb^1027
+  Hegel^1044
+  Ricky^1025
+  Julian^1026
+  Barb^1027
 </pre>
 
 
