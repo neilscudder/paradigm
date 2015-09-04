@@ -1,5 +1,5 @@
 #!/bin/sh
-# PARADIGM 1.0.2 Copyright 2015 @neilscudder
+# PARADIGM 1.0.3 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 
 main()
@@ -11,9 +11,6 @@ main()
   for configFile in "$configDir"/*; do
     . $configFile
     [ -z ${PLAYNODE+x} ] && showHelp "PLAYNODE not read from config file"
-    [ -z ${CONTROLUSER+x} ] && CONTROLUSER="paradigm"
-    [ -z ${SERVERPORT+x} ] && SERVERPORT=22
-    [ -z ${LOGFILE+x} ] && LOGFILE="$HOME/log.paradigm"
     logIt I "---$configFile---"
     tunnelCheck
   done
