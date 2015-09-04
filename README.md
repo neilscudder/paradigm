@@ -31,7 +31,6 @@ Set to run once per minute in user crontab:<br>
 </ul>
 
 <h3>The Flat File</h3>
-
 Paradigm uses a server-side flat file to store portaliases to simplify connecting and provide access to multiple services on multiple nodes. Each node is able to forward as many ports as required.
 
 File location: jailed user's home directory.<br/>
@@ -77,15 +76,6 @@ Syntax Example
 </ul>
 
 <h3>About this script</h3>
-
-The primary reason for this script to exist is so that headless, inaccessible, portable embedded devices may remain accessible from a central server, despite changing geographic or network conditions. We are abstracting the network configuration away. Although this is useful for retaining shell access for maintenance, in the playnode system the target service is usually mpd - the music player daemon (http://www.musicpd.org/). This script facilitates reliable control of local mpd via remote server.
-
-Server-side control of a local service allows a reduction in stress on the client unit, augmentation of data with meta data, and caching for efficient scaling to many users. For example, the music player client will do less work, because the server only makes 10 requests of it per minute, while relaying that data 10 times as often to users accessing the web site, and augmenting it with album artwork retrieved from Amazon.
-
-By consolidating the local services of many remote clients on the server, commands may be issued and data retrieved quickly, without having to restablish connection and authenticate each time. This facilitates highly responsive server-side control of local services from a WAN connection, without having to configure local networks. For example, a mobile web app to control music can run on a public web server to control a headless music player on the local network. This is a more simple (for the user), robust and reliable method.
-
-This script checks for the existence of, and otherwise initiates a ssh tunnel to reverse-forward a local port to a remote server. It has verbose logs. It is a work-in-progress.
+Paradigm checks for the existence of, and otherwise initiates a ssh tunnel to reverse-forward local ports to a remote server.
 
 In practice this is useful to manage a fleet of headless embedded media players such as digital signage in retail locations with poor quality computer networks. Remote accessibility to all forwarded service ports persists with minimal network requirements: access to one server over one port.
-
-This is a proprietary script that is being converted to a general purpose utility.
