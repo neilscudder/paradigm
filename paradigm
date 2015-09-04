@@ -1,9 +1,8 @@
 #!/bin/sh
-# PARADIGM 1.0.1 Copyright 2015 @neilscudder
+# PARADIGM 1.0.2 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
-# CHANGING TO CONFIG FILES
 
-main()                       # Called at bottom of script
+main()
 {
   local configDir
   local configFile
@@ -15,7 +14,7 @@ main()                       # Called at bottom of script
     [ -z ${CONTROLUSER+x} ] && CONTROLUSER="paradigm"
     [ -z ${SERVERPORT+x} ] && SERVERPORT=22
     [ -z ${LOGFILE+x} ] && LOGFILE="$HOME/log.paradigm"
-    logIt I "---START---"
+    logIt I "---$configFile---"
     tunnelCheck
   done
 }
