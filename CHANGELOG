@@ -1,0 +1,17 @@
+Changelog 0.6.3 - 1.0.0
+=======================
+CLI args deprecated
+Config files now read from directory
+Major version change
+Switch to semantic versioning
+Removed test mode
+
+Changelog 0.1 - 0.6.3
+=====================
+Parameters moved to CLI args
+Finer grain error reporting
+Much better logging
+More readable code
+Compatible with /bin/dash
+Proxy function removed, focus on core competency
+Added test mode
