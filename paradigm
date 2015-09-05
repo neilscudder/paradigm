@@ -117,19 +117,16 @@ getPortalias()
 
 sshPortalias() 
 {
-  local remoteCmd="\
-    cat \
-    'portalias-${SERVICENAME}' \
-    | grep '^${PLAYNODE}' \
-    | /usr/bin/cut -d^ -f2"
-
   /usr/bin/ssh \
     -q \
     -p ${SERVERPORT} \
     -o ConnectTimeout=5 \
     -o ControlMaster=no \
     ${CONTROLUSER}@${CONTROLSERVER} \
-    "${remoteCmd}"
+    "cat \
+    'portalias-${SERVICENAME}' \
+    | grep '^${PLAYNODE}' \
+    | /usr/bin/cut -d^ -f2"
 
   if [ "$?" = "0" ] ; then
     logIt I "sshPortalias success"
@@ -147,11 +144,11 @@ showHelp()
   cat << EOF
 Usage:
   paradigm [CONFIGDIR]
-  CONFIGDIR defaults to $HOME/.paradigm
+  CONFIGDIR defaults to ~/.paradigm
   Reads one service per file in the format below.
   Run every minute to check all services and/or re-establish tunnels.
 
-Example config file ($HOME/.paradigm/Dummy-MPD.conf): 
+Example config file (~/.paradigm/Dummy-MPD.conf): 
 
 CONTROLUSER="convict"
 SERVERPORT=42
@@ -166,5 +163,5 @@ EOF
 }
 
 # Call the first function to start
-main $@
+main "$@"
 exit 0
