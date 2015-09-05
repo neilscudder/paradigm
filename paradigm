@@ -11,37 +11,9 @@ main()
   for configFile in "$configDir"/*; do
     . $configFile
     [ -z ${PLAYNODE+x} ] && showHelp "PLAYNODE not read from config file"
-    [ -z ${CONTROLUSER+x} ] && CONTROLUSER="paradigm"
-    [ -z ${SERVERPORT+x} ] && SERVERPORT=22
-    [ -z ${LOGFILE+x} ] && LOGFILE="$HOME/log.paradigm"
     logIt I "---$configFile---"
     tunnelCheck
   done
-}
-
-error_exit() 
-{
-  logIt E "${1:-"Unknown Error"}"
-  exit 1
-}
-
-logIt() 
-{
-  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
-  local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
-  local b=""
-  case $1 in
-    I)
-      b="${a}II"
-    ;;
-    W)
-      b="${a}WW"
-    ;;
-    E)
-      b="${a}EE"
-    ;;
-  esac
-  echo "${b} - ${2}" >> $LOGFILE
 }
 
 tunnelCheck() 
@@ -136,6 +108,31 @@ sshPortalias()
   else
     error_exit "sshPortalias failed"
   fi
+}
+
+error_exit() 
+{
+  logIt E "${1:-"Unknown Error"}"
+  exit 1
+}
+
+logIt() 
+{
+  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
+  local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
+  local b=""
+  case $1 in
+    I)
+      b="${a}II"
+    ;;
+    W)
+      b="${a}WW"
+    ;;
+    E)
+      b="${a}EE"
+    ;;
+  esac
+  echo "${b} - ${2}" >> $LOGFILE
 }
 
 showHelp() 
