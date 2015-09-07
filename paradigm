@@ -6,14 +6,15 @@ main()
 {
   local configDir
   local configFile
-  [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm/"
-  [ ! -e $configDir ] && showHelp "Config dir (${configDir}) does not exist!"
+  configDir="${1:-"$HOME/.paradigm"}"
+  [ -e $configDir ] || showHelp "Config dir does not exist!"
   for configFile in "$configDir"/*; do
-    . $configFile
-    [ -z ${PLAYNODE+x} ] && showHelp "PLAYNODE not read from config file"
+    . $configFile # source
+    [ -z ${PLAYNODE+x} ] && showHelp "Problem with config file"
     logIt I "---$configFile---"
     tunnelCheck
   done
+  logIt I "All config files checked."
 }
 
 tunnelCheck() 
