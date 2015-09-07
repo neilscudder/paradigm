@@ -62,7 +62,6 @@ sshTunnel()
   portalias="$1"
 
   /usr/bin/ssh \
-    -q \
     -N \
     -p ${SERVERPORT} \
     -o ConnectTimeout=3 \
@@ -72,7 +71,7 @@ sshTunnel()
     -o ExitOnForwardFailure=yes \
     -R ${portalias}:localhost:${SERVICEPORT} \
     ${CONTROLUSER}@${CONTROLSERVER} \
-    >> ${LOGFILE} 2>&1 \
+    >> "$LOGFILE" 2>&1 \
     & echo "$!"
 # Echo returns the value
 }
