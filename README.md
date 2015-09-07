@@ -56,26 +56,7 @@ Syntax Example
 
 (http://www.rebol.com/docs/ssh-auto-login.html)
 
-<h3>Changelog 0.6.3 - 1.0.0</h3>
-<ul>
-  <li>CLI args deprecated</li>
-  <li>Config files now read from directory</li>
-  <li>Major version change</li>
-  <li>Switch to semantic versioning</li>
-  <li>Removed test mode</li>
-</ul>
-<h3>Changelog 0.1 - 0.6.3</h3>
-<ul>
-  <li>Parameters moved to CLI args</li>
-  <li>Finer grain error reporting</li>
-  <li>Much better logging</li>
-  <li>More readable code</li>
-  <li>Compatible with /bin/dash</li>
-  <li>Proxy function removed, focus on core competency</li>
-  <li>Added test mode</li>
-</ul>
-
-<h3>About this script</h3>
+<h3>About</h3>
 Paradigm checks for the existence of, and otherwise initiates a ssh tunnel to reverse-forward local ports to a remote server.
 
 In practice this is useful to manage a fleet of headless embedded media players such as digital signage in retail locations with poor quality computer networks. Remote accessibility to all forwarded service ports persists with minimal network requirements: access to one server over one port.
