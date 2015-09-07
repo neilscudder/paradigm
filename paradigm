@@ -1,19 +1,20 @@
 #!/bin/sh
-# PARADIGM 1.0.2 Copyright 2015 @neilscudder
+# PARADIGM 1.0.3 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 
 main()
 {
   local configDir
   local configFile
-  [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm/"
-  [ ! -e $configDir ] && showHelp "Config dir (${configDir}) does not exist!"
+  configDir="${1:-"$HOME/.paradigm"}"
+  [ -e $configDir ] || showHelp "Config dir does not exist!"
   for configFile in "$configDir"/*; do
-    . $configFile
-    [ -z ${PLAYNODE+x} ] && showHelp "PLAYNODE not read from config file"
+    . $configFile # source
+    [ -z ${PLAYNODE+x} ] && showHelp "Problem with config file"
     logIt I "---$configFile---"
     tunnelCheck
   done
+  logIt I "All config files checked."
 }
 
 tunnelCheck() 
@@ -85,7 +86,6 @@ getPortalias()
     error_exit "Portalias var is empty"
   else
     logIt I "Portalias is ${portalias}"
-# Return the value:
     echo "$portalias"
   fi
 }
