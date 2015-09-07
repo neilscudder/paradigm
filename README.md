@@ -1,4 +1,4 @@
-# paradigm
+# paradigm v1.0.3
 
 Access services on remote, portable, or mobile client machines as though they are on your server's localhost. Ports for local services like sshd or mpd are forwarded through encrypted tunnels to a server. Tunnels are checked and re-established when broken. Everything is logged. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. Run paradigm every minute with system cron.
 
