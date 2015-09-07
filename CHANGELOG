@@ -1,0 +1,23 @@
+v1.0.0 - 1.0.3
+==============
+Removed embedded defaults
+Code and log msg cleanup
+
+
+v0.6.3 - v1.0.0
+===============
+CLI args deprecated
+Config files now read from directory
+Major version change
+Switch to semantic versioning
+Removed test mode
+
+0.1 - v0.6.3
+============
+Parameters moved to CLI args
+Finer grain error reporting
+Much better logging
+More readable code
+Compatible with /bin/dash
+Proxy function removed, focus on core competency
+Added test mode

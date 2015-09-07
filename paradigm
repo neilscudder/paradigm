@@ -1,47 +1,20 @@
 #!/bin/sh
-# PARADIGM 1.0.2 Copyright 2015 @neilscudder
+# PARADIGM 1.0.3 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 
 main()
 {
   local configDir
   local configFile
-  [ $1 ] && configDir="$1" || configDir="$HOME/.paradigm/"
-  [ ! -e $configDir ] && showHelp "Config dir (${configDir}) does not exist!"
+  configDir="${1:-"$HOME/.paradigm"}"
+  [ -e $configDir ] || showHelp "Config dir does not exist!"
   for configFile in "$configDir"/*; do
-    . $configFile
-    [ -z ${PLAYNODE+x} ] && showHelp "PLAYNODE not read from config file"
-    [ -z ${CONTROLUSER+x} ] && CONTROLUSER="paradigm"
-    [ -z ${SERVERPORT+x} ] && SERVERPORT=22
-    [ -z ${LOGFILE+x} ] && LOGFILE="$HOME/log.paradigm"
+    . $configFile # source
+    [ -z ${PLAYNODE+x} ] && showHelp "Problem with config file"
     logIt I "---$configFile---"
     tunnelCheck
   done
-}
-
-error_exit() 
-{
-  logIt E "${1:-"Unknown Error"}"
-  exit 1
-}
-
-logIt() 
-{
-  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
-  local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
-  local b=""
-  case $1 in
-    I)
-      b="${a}II"
-    ;;
-    W)
-      b="${a}WW"
-    ;;
-    E)
-      b="${a}EE"
-    ;;
-  esac
-  echo "${b} - ${2}" >> $LOGFILE
+  logIt I "All service tunnels checked, exiting"
 }
 
 tunnelCheck() 
@@ -51,19 +24,19 @@ tunnelCheck()
 
   if [ -e "$pidFile" ]; then
     local pid=$(cat "$pidFile")
-    logIt I "pidFile found, pid is ${pid}"
+    logIt I "Process id ${pid} was found"
   else
-    logIt W "pidFile not found"
+    logIt W "Process id was not found"
     establishTunnel
   fi
 
   if [ $pid ]; then
     logIt I "$pid found"
     if kill -0 $pid; then
-      logIt I "pid running, exiting"
+      logIt I "Process id ${pid} is running"
     else
       rm -f ${pidfile}
-      logIt W "pid not found running"
+      logIt W "Process id ${pid} is not running"
       establishTunnel
     fi
   fi
@@ -76,9 +49,9 @@ establishTunnel()
   local pid=$(sshTunnel ${portalias})
 
   if [ -z $pid ]; then
-    error_exit "pid not set"
+    error_exit "sshTunnel error, pid value not set"
   else
-    logIt I "pid is ${pid}"
+    logIt I "Tunnel process id is ${pid}"
     local pidFile=/tmp/paradigm-${SERVICENAME}.pid
     echo "$pid" > "$pidFile"
   fi
@@ -89,7 +62,6 @@ sshTunnel()
   portalias="$1"
 
   /usr/bin/ssh \
-    -q \
     -N \
     -p ${SERVERPORT} \
     -o ConnectTimeout=3 \
@@ -99,7 +71,7 @@ sshTunnel()
     -o ExitOnForwardFailure=yes \
     -R ${portalias}:localhost:${SERVICEPORT} \
     ${CONTROLUSER}@${CONTROLSERVER} \
-    >> /dev/null 2>&1 \
+    >> "$LOGFILE" 2>&1 \
     & echo "$!"
 # Echo returns the value
 }
@@ -110,29 +82,25 @@ getPortalias()
   local portalias=$(sshPortalias) 
 
   if [ -z $portalias ]; then
-    error_exit "Portalias var is empty"
+    error_exit "Portalias is not available"
   else
     logIt I "Portalias is ${portalias}"
-# Return the value:
     echo "$portalias"
   fi
 }
 
 sshPortalias() 
 {
-  local remoteCmd="\
-    cat \
-    'portalias-${SERVICENAME}' \
-    | grep '^${PLAYNODE}' \
-    | /usr/bin/cut -d^ -f2"
-
   /usr/bin/ssh \
     -q \
     -p ${SERVERPORT} \
     -o ConnectTimeout=5 \
     -o ControlMaster=no \
     ${CONTROLUSER}@${CONTROLSERVER} \
-    "${remoteCmd}"
+    "cat \
+    'portalias-${SERVICENAME}' \
+    | grep '^${PLAYNODE}' \
+    | /usr/bin/cut -d^ -f2"
 
   if [ "$?" = "0" ] ; then
     logIt I "sshPortalias success"
@@ -141,20 +109,39 @@ sshPortalias()
   fi
 }
 
+error_exit() 
+{
+  logIt E "${1:-"Unknown Error"}"
+  exit 1
+}
+
+logIt() 
+{
+  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
+  local a="$(date +"%m-%d-%y-%T") ${PLAYNODE}-${SERVICENAME}-"
+  local b
+  case $1 in
+    I) b="${a}II" ;;
+    W) b="${a}WW" ;;
+    E) b="${a}EE" ;;
+  esac
+  echo "${b} ${2}" >> $LOGFILE
+}
+
 showHelp() 
 {
-  echo "ERROR:
+  cat << EOF
+ERROR:
 
   $1
-  "
-  cat << EOF
+
 Usage:
   paradigm [CONFIGDIR]
-  CONFIGDIR defaults to $HOME/.paradigm
+  CONFIGDIR defaults to ~/.paradigm
   Reads one service per file in the format below.
   Run every minute to check all services and/or re-establish tunnels.
 
-Example config file ($HOME/.paradigm/Dummy-MPD.conf): 
+Example config file (~/.paradigm/Dummy-MPD.conf): 
 
 CONTROLUSER="convict"
 SERVERPORT=42
@@ -169,5 +156,5 @@ EOF
 }
 
 # Call the first function to start
-main $@
+main "$@"
 exit 0
