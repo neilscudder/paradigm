@@ -14,7 +14,7 @@ main()
     logIt I "---$configFile---"
     tunnelCheck
   done
-  logIt I "All config files checked."
+  logIt I "All service tunnels checked, exiting"
 }
 
 tunnelCheck() 
@@ -24,19 +24,19 @@ tunnelCheck()
 
   if [ -e "$pidFile" ]; then
     local pid=$(cat "$pidFile")
-    logIt I "pidFile found, pid is ${pid}"
+    logIt I "Process id ${pid} was found"
   else
-    logIt W "pidFile not found"
+    logIt W "Process id was not found"
     establishTunnel
   fi
 
   if [ $pid ]; then
     logIt I "$pid found"
     if kill -0 $pid; then
-      logIt I "pid running, exiting"
+      logIt I "Process id ${pid} is running"
     else
       rm -f ${pidfile}
-      logIt W "pid not found running"
+      logIt W "Process id ${pid} is not running"
       establishTunnel
     fi
   fi
@@ -49,9 +49,9 @@ establishTunnel()
   local pid=$(sshTunnel ${portalias})
 
   if [ -z $pid ]; then
-    error_exit "pid not set"
+    error_exit "sshTunnel error, pid value not set"
   else
-    logIt I "pid is ${pid}"
+    logIt I "Tunnel process id is ${pid}"
     local pidFile=/tmp/paradigm-${SERVICENAME}.pid
     echo "$pid" > "$pidFile"
   fi
@@ -83,7 +83,7 @@ getPortalias()
   local portalias=$(sshPortalias) 
 
   if [ -z $portalias ]; then
-    error_exit "Portalias var is empty"
+    error_exit "Portalias is not available"
   else
     logIt I "Portalias is ${portalias}"
     echo "$portalias"
@@ -119,17 +119,14 @@ error_exit()
 logIt() 
 {
   [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
-  local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
-  local b=""
+  local a="$(date +"%m-%d-%y-%T") ${PLAYNODE}-${SERVICENAME}-"
+  local b
   case $1 in
-    I)
-      b="${a}II"
+    I) b="${a}II"
     ;;
-    W)
-      b="${a}WW"
+    W) b="${a}WW"
     ;;
-    E)
-      b="${a}EE"
+    E) b="${a}EE"
     ;;
   esac
   echo "${b} - ${2}" >> $LOGFILE
@@ -137,11 +134,11 @@ logIt()
 
 showHelp() 
 {
-  echo "ERROR:
+  cat << EOF
+ERROR:
 
   $1
-  "
-  cat << EOF
+
 Usage:
   paradigm [CONFIGDIR]
   CONFIGDIR defaults to ~/.paradigm
