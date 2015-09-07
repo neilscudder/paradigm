@@ -86,7 +86,6 @@ getPortalias()
     error_exit "Portalias var is empty"
   else
     logIt I "Portalias is ${portalias}"
-# Return the value:
     echo "$portalias"
   fi
 }
