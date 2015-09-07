@@ -16,31 +16,6 @@ main()
   done
 }
 
-error_exit() 
-{
-  logIt E "${1:-"Unknown Error"}"
-  exit 1
-}
-
-logIt() 
-{
-  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
-  local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
-  local b=""
-  case $1 in
-    I)
-      b="${a}II"
-    ;;
-    W)
-      b="${a}WW"
-    ;;
-    E)
-      b="${a}EE"
-    ;;
-  esac
-  echo "${b} - ${2}" >> $LOGFILE
-}
-
 tunnelCheck() 
 {              
   logIt I "tunnelCheck"
@@ -133,6 +108,31 @@ sshPortalias()
   else
     error_exit "sshPortalias failed"
   fi
+}
+
+error_exit() 
+{
+  logIt E "${1:-"Unknown Error"}"
+  exit 1
+}
+
+logIt() 
+{
+  [ -z ${PLAYNODE+x} ] && echo "PLAYNODE not set!"
+  local a="$(date +"%m-%d-%y-%T") ${PLAYNODE} - ${SERVICENAME} - "
+  local b=""
+  case $1 in
+    I)
+      b="${a}II"
+    ;;
+    W)
+      b="${a}WW"
+    ;;
+    E)
+      b="${a}EE"
+    ;;
+  esac
+  echo "${b} - ${2}" >> $LOGFILE
 }
 
 showHelp() 
