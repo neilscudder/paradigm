@@ -62,7 +62,6 @@ sshTunnel()
   portalias="$1"
 
   /usr/bin/ssh \
-    -q \
     -N \
     -p ${SERVERPORT} \
     -o ConnectTimeout=3 \
