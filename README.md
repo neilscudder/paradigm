@@ -4,6 +4,9 @@ A portable shell script to establish and maintain port forwarding tunnels. Compa
 
 The future: Logs are rotated and uploaded. Ssh parameters have failover values when problems occur. A server-side framework keeps clients organized in a simple, secure, multi-user environment. Full POSIX compatibility. 
 
+Contributing: see issues marked help wanted. Increment patch version before each pull request from dev to master. Actively seeking beta testers. 
+
+
 Usage:<br>
 &nbsp;&nbsp;paradigm [CONFIGDIR]<br>
 &nbsp;&nbsp;CONFIGDIR defaults to $HOME/.paradigm<br>
