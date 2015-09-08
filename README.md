@@ -1,6 +1,8 @@
 # paradigm v1.0.3
 
-Access services on remote, portable, or mobile client machines as though they are on your server's localhost. Ports for local services like sshd or mpd are forwarded through encrypted tunnels to a server. Tunnels are checked and re-established when broken. Everything is logged. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. Run paradigm every minute with system cron.
+A portable shell script to establish and maintain port forwarding tunnels. Compatible with /bin/sh (dash) in Ubuntu, tested also in Alpine linux using busybox and openssh. Run paradigm every minute with system cron.
+
+The future: Logs are rotated and uploaded. Ssh parameters have failover values when problems occur. A server-side framework keeps clients organized in a simple, secure, multi-user environment. Full POSIX compatibility. 
 
 Usage:<br>
 &nbsp;&nbsp;paradigm [CONFIGDIR]<br>
@@ -57,6 +59,6 @@ Syntax Example
 (http://www.rebol.com/docs/ssh-auto-login.html)
 
 <h3>About</h3>
-Paradigm checks for the existence of, and otherwise initiates a ssh tunnel to reverse-forward local ports to a remote server.
+Access services on remote, portable, or mobile client machines as though they are on your server's localhost. Ports for local services like sshd are forwarded through encrypted tunnels to a server. Tunnels are checked and re-established when broken. Everything is logged. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. 
 
 In practice this is useful to manage a fleet of headless embedded media players such as digital signage in retail locations with poor quality computer networks. Remote accessibility to all forwarded service ports persists with minimal network requirements: access to one server over one port.
