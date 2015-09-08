@@ -13,7 +13,7 @@ Contributing: see issues marked help wanted. Increment patch version before each
 &nbsp;&nbsp;Reads one service per file in the format below.<br>
 &nbsp;&nbsp;Run every minute to check all services and/or re-establish tunnels.
 
-<h3>Example config</h3>
+<h3>Example Config:</h3>
 &nbsp;&nbsp;CONTROLUSER="convict"<br>
 &nbsp;&nbsp;SERVERPORT=42<br>
 &nbsp;&nbsp;LOGFILE="./log.paradigm"<br>
