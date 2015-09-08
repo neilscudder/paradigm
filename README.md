@@ -7,13 +7,13 @@ The future: Logs are rotated and uploaded. Ssh parameters have failover values w
 Contributing: see issues marked help wanted. Increment patch version before each pull request from dev to master. Actively seeking beta testers. 
 
 
-Usage:<br>
+<h3>Usage:</h3>
 &nbsp;&nbsp;paradigm [CONFIGDIR]<br>
 &nbsp;&nbsp;CONFIGDIR defaults to $HOME/.paradigm<br>
 &nbsp;&nbsp;Reads one service per file in the format below.<br>
 &nbsp;&nbsp;Run every minute to check all services and/or re-establish tunnels.
 
-Example config file ($HOME/.paradigm/Dummy-MPD.conf): <br>
+<h3>Example config</h3>
 &nbsp;&nbsp;CONTROLUSER="convict"<br>
 &nbsp;&nbsp;SERVERPORT=42<br>
 &nbsp;&nbsp;LOGFILE="./log.paradigm"<br>
@@ -22,7 +22,7 @@ Example config file ($HOME/.paradigm/Dummy-MPD.conf): <br>
 &nbsp;&nbsp;SERVICEPORT=6600<br>
 &nbsp;&nbsp;CONTROLSERVER="control"
 
-Installation:<br>
+<h3>Installation:</h3>
 &nbsp;&nbsp;chmod a+x ./paradigm; cp paradigm /usr/bin<br>
 Set to run once per minute in user crontab:<br>
 &nbsp;&nbsp;*/1 * * * *  /usr/bin/paradigm  >> /dev/null 2>&1<br>
