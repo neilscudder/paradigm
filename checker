@@ -1,0 +1,25 @@
+#!/bin/bash                                                                          # CHECKER 0.0.1 Copyright 2015 @neilscudder
+# Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
+
+main()
+{
+  local playnode="$1"
+  local serviceName="$2"
+  local mac="$3"
+  [ $# -lt 2 ] && echo "Usage: $0 PLAYNODE SERVICENAME MAC"
+  local findPlaynode="$(cat \
+    "portalias-${serviceName}" \
+    | grep "^${playnode}" \
+    | /usr/bin/cut -d^ -f2)"
+
+  if [ ! -z ${findPlaynode} ]; then
+    echo "$findPlaynode"                                                               elif [ ! -z ${playnode} ]; then                                                        local lastPort="$(cat \                                                              "portalias-${serviceName}" \
+    | tail -n1 \
+    | /usr/bin/cut -d^ -f2)"
+    (( ++lastPort ))
+    echo "$playnode^$lastPort" >> "portalias-${serviceName}"                             echo "$lastPort"                                                                   else                                                                                   echo "Yo momma"
+  fi
+}
+
+main "$@"
+exit 0
