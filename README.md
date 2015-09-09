@@ -1,19 +1,31 @@
-# paradigm
+# paradigm v1.0.4
 
-Access services on remote, portable, or mobile client machines as though they are on your server's localhost. Tunnels encrypted over ssh forward local ports securly to the server. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. At present, it is run once every minute by system cron. 
+A portable shell script to establish and maintain port forwarding tunnels. Compatible with /bin/sh (dash) in Ubuntu, tested also in Alpine linux using busybox and openssh. Run paradigm every minute with system cron. The "checker" script should go in the server user's home directory.
 
-Usage:<br>
-&nbsp;&nbsp;paradigm [OPTIONS] PLAYNODE SERVICENAME SERVICEPORT SERVER
+The future: Logs are rotated and uploaded. Ssh parameters have failover values when problems occur. THE server-side framework keeps clients organized in a simple, secure, multi-user environment. Full POSIX compatibility. 
 
-&nbsp;&nbsp;-h Print this usage text.<br>
-&nbsp;&nbsp;-u User account on server. (Default=paradigm.)<br>
-&nbsp;&nbsp;-p Server listening port. (Default=22.)<br>
-&nbsp;&nbsp;-t Test shortcut using embedded values<br>
+Contributing: see issues marked help wanted. Increment patch version before each pull request from dev to master. Actively seeking beta testers. 
 
-Installation:<br>
-&nbsp;&nbsp;chmod a+x ./paradigm; cp paradigm /usr/bin [or somewhere in your bin path]<br>
+
+<h3>Usage:</h3>
+&nbsp;&nbsp;paradigm [CONFIGDIR]<br>
+&nbsp;&nbsp;CONFIGDIR defaults to $HOME/.paradigm<br>
+&nbsp;&nbsp;Reads one service per file in the format below.<br>
+&nbsp;&nbsp;Run every minute to check all services and/or re-establish tunnels.
+
+<h3>Example Config:</h3>
+&nbsp;&nbsp;CONTROLUSER="convict"<br>
+&nbsp;&nbsp;SERVERPORT=42<br>
+&nbsp;&nbsp;LOGFILE="./log.paradigm"<br>
+&nbsp;&nbsp;PLAYNODE="Dummy"<br>
+&nbsp;&nbsp;SERVICENAME="MPD"<br>
+&nbsp;&nbsp;SERVICEPORT=6600<br>
+&nbsp;&nbsp;CONTROLSERVER="control"
+
+<h3>Installation:</h3>
+&nbsp;&nbsp;chmod a+x ./paradigm; cp paradigm /usr/bin<br>
 Set to run once per minute in user crontab:<br>
-&nbsp;&nbsp;*/1 * * * *  /usr/bin/paradigm -u convict Playnode Shell 22 control  >> /dev/null 2>&1<br>
+&nbsp;&nbsp;*/1 * * * *  /usr/bin/paradigm  >> /dev/null 2>&1<br>
 
 <h3>Definitions</h3>
 <ul>
@@ -23,16 +35,18 @@ Set to run once per minute in user crontab:<br>
   <li>Portalias - Server-assigned port mapped to the reverse tunnel. This value is retrieved from a server-side flat file before each tunnel is established.</li>
 </ul>
 
-<h3>Change log 0.1 to 0.6.3</h3>
-<ul>
-  <li>Parameters moved to CLI args</li>
-  <li>Finer grain error reporting</li>
-  <li>Much better logging</li>
-  <li>More readable code</li>
-  <li>Compatible with /bin/dash</li>
-  <li>Proxy function removed, focus on core competency</li>
-  <li>Added test mode</li>
-</ul>
+<h3>The Flat File</h3>
+Paradigm uses a server-side flat file to store portaliases to simplify connecting and provide access to multiple services on multiple nodes. Each node is able to forward as many ports as required.
+
+File location: jailed user's home directory.<br/>
+File name syntax: portalias-SERVICENAME (i.e. ~/portalias-Shell)
+
+Syntax Example
+<pre>
+  Ricky^1025
+  Julian^1026
+  Bubbles^1027
+</pre>
 
 <h3>Setup ssh-keys for authentication:</h3>
 - on the playnode, cd ~/.ssh
@@ -47,32 +61,7 @@ Set to run once per minute in user crontab:<br>
 
 (http://www.rebol.com/docs/ssh-auto-login.html)
 
-<h3>The Flat File</h3>
-
-Paradigm uses a server-side flat file to store portaliases to simplify connecting and provide access to multiple services on multiple nodes. Each node is able to forward as many ports as required.
-
-File location: jailed user's home directory.<br/>
-File name syntax: portalias-SERVICENAME (i.e. ~/portalias-Shell)
-
-Syntax Example
-<pre>
-  Hegel^1044
-  Ricky^1025
-  Julian^1026
-  Barb^1027
-</pre>
-
-
-<h3>About this script</h3>
-
-The primary reason for this script to exist is so that headless, inaccessible, portable embedded devices may remain accessible from a central server, despite changing geographic or network conditions. We are abstracting the network configuration away. Although this is useful for retaining shell access for maintenance, in the playnode system the target service is usually mpd - the music player daemon (http://www.musicpd.org/). This script facilitates reliable control of local mpd via remote server.
-
-Server-side control of a local service allows a reduction in stress on the client unit, augmentation of data with meta data, and caching for efficient scaling to many users. For example, the music player client will do less work, because the server only makes 10 requests of it per minute, while relaying that data 10 times as often to users accessing the web site, and augmenting it with album artwork retrieved from Amazon.
-
-By consolidating the local services of many remote clients on the server, commands may be issued and data retrieved quickly, without having to restablish connection and authenticate each time. This facilitates highly responsive server-side control of local services from a WAN connection, without having to configure local networks. For example, a mobile web app to control music can run on a public web server to control a headless music player on the local network. This is a more simple (for the user), robust and reliable method.
-
-This script checks for the existence of, and otherwise initiates a ssh tunnel to reverse-forward a local port to a remote server. It has verbose logs. It is a work-in-progress.
+<h3>About</h3>
+Access services on remote, portable, or mobile client machines as though they are on your server's localhost. Ports for local services like sshd are forwarded through encrypted tunnels to a server. Tunnels are checked and re-established when broken. Everything is logged. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision. 
 
 In practice this is useful to manage a fleet of headless embedded media players such as digital signage in retail locations with poor quality computer networks. Remote accessibility to all forwarded service ports persists with minimal network requirements: access to one server over one port.
-
-This is a proprietary script that is being converted to a general purpose utility.
