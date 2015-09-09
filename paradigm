@@ -69,7 +69,7 @@ sshTunnel()
     -o ServerAliveInterval=45 \
     -o ControlMaster=no \
     -o ExitOnForwardFailure=yes \
-    -R ${portalias}:localhost:${SERVICEPORT} \
+    -R test.localhost:${portalias}:localhost:${SERVICEPORT} \
     ${CONTROLUSER}@${CONTROLSERVER} \
     >> "$LOGFILE" 2>&1 \
     & echo "$!"
@@ -97,10 +97,7 @@ sshPortalias()
     -o ConnectTimeout=5 \
     -o ControlMaster=no \
     ${CONTROLUSER}@${CONTROLSERVER} \
-    "cat \
-    'portalias-${SERVICENAME}' \
-    | grep '^${PLAYNODE}' \
-    | /usr/bin/cut -d^ -f2"
+    "checker ${PLAYNODE} ${SERVICENAME}"
 
   if [ "$?" = "0" ] ; then
     logIt I "sshPortalias success"
