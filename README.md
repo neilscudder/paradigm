@@ -1,8 +1,8 @@
-# paradigm v1.0.3
+# paradigm v1.0.4
 
 A portable shell script to establish and maintain port forwarding tunnels. Compatible with /bin/sh (dash) in Ubuntu, tested also in Alpine linux using busybox and openssh. Run paradigm every minute with system cron.
 
-The future: Logs are rotated and uploaded. Ssh parameters have failover values when problems occur. A server-side framework keeps clients organized in a simple, secure, multi-user environment. Full POSIX compatibility. 
+The future: Logs are rotated and uploaded. Ssh parameters have failover values when problems occur. THE server-side framework keeps clients organized in a simple, secure, multi-user environment. Full POSIX compatibility. 
 
 Contributing: see issues marked help wanted. Increment patch version before each pull request from dev to master. Actively seeking beta testers. 
 
