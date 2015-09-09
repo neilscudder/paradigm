@@ -1,4 +1,5 @@
-#!/bin/bash                                                                          # CHECKER 0.0.1 Copyright 2015 @neilscudder
+#!/bin/bash                                                                          
+# CHECKER 0.0.1 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 
 main()
@@ -13,11 +14,19 @@ main()
     | /usr/bin/cut -d^ -f2)"
 
   if [ ! -z ${findPlaynode} ]; then
-    echo "$findPlaynode"                                                               elif [ ! -z ${playnode} ]; then                                                        local lastPort="$(cat \                                                              "portalias-${serviceName}" \
+    echo "$findPlaynode"                                                                   
+
+  elif [ ! -z ${playnode} ]; then                                                        
+
+  local lastPort="$(cat \                                                              
+  "portalias-${serviceName}" \
     | tail -n1 \
     | /usr/bin/cut -d^ -f2)"
     (( ++lastPort ))
-    echo "$playnode^$lastPort" >> "portalias-${serviceName}"                             echo "$lastPort"                                                                   else                                                                                   echo "Yo momma"
+    echo "$playnode^$lastPort" >> "portalias-${serviceName}"                              
+    echo "$lastPort"                                                                   
+  else                                                                                       
+    echo "Yo momma"
   fi
 }
 
