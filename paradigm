@@ -69,7 +69,7 @@ sshTunnel()
     -o ServerAliveInterval=45 \
     -o ControlMaster=no \
     -o ExitOnForwardFailure=yes \
-    -R test.localhost:${portalias}:localhost:${SERVICEPORT} \
+    -R ${portalias}:localhost:${SERVICEPORT} \
     ${CONTROLUSER}@${CONTROLSERVER} \
     >> "$LOGFILE" 2>&1 \
     & echo "$!"
