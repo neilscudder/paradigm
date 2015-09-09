@@ -1,5 +1,5 @@
 #!/bin/sh
-# PARADIGM 1.0.3 Copyright 2015 @neilscudder
+# PARADIGM 1.0.4 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 
 main()
@@ -97,10 +97,7 @@ sshPortalias()
     -o ConnectTimeout=5 \
     -o ControlMaster=no \
     ${CONTROLUSER}@${CONTROLSERVER} \
-    "cat \
-    'portalias-${SERVICENAME}' \
-    | grep '^${PLAYNODE}' \
-    | /usr/bin/cut -d^ -f2"
+    "checker ${PLAYNODE} ${SERVICENAME}"
 
   if [ "$?" = "0" ] ; then
     logIt I "sshPortalias success"
