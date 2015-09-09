@@ -14,19 +14,17 @@ main()
     | /usr/bin/cut -d^ -f2)"
 
   if [ ! -z ${findPlaynode} ]; then
-    echo "$findPlaynode"                                                                   
-
-  elif [ ! -z ${playnode} ]; then                                                        
-
-  local lastPort="$(cat \                                                              
-  "portalias-${serviceName}" \
-    | tail -n1 \
-    | /usr/bin/cut -d^ -f2)"
+    echo "$findPlaynode"
+  elif [ ! -z ${playnode} ]; then
+    local lastPort="$(cat \                                                              
+      "portalias-${serviceName}" \
+      | tail -n1 \
+      | /usr/bin/cut -d^ -f2)"
     (( ++lastPort ))
     echo "$playnode^$lastPort" >> "portalias-${serviceName}"                              
     echo "$lastPort"                                                                   
   else                                                                                       
-    echo "Yo momma"
+    echo "no vars were set bruh"
   fi
 }
 
