@@ -1,30 +1,31 @@
 #!/bin/bash                                                                          
-# CHECKER 0.0.1 Copyright 2015 @neilscudder
+# CHECKER 0.0.2 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 
 main()
 {
+  [ $# -lt 2 ] && echo "Usage: $0 PLAYNODE SERVICENAME MAC"
   local playnode="$1"
   local serviceName="$2"
   local mac="$3"
-  [ $# -lt 2 ] && echo "Usage: $0 PLAYNODE SERVICENAME MAC"
-  local findPlaynode="$(cat \
-    "portalias-${serviceName}" \
+  local flatFile="portalias-${serviceName}"  
+  local portalias="$(cat \
+    "${flatFile}" \
     | grep "^${playnode}" \
     | /usr/bin/cut -d^ -f2)"
 
-  if [ ! -z ${findPlaynode} ]; then
-    echo "$findPlaynode"
+  if [ ! -z ${portalias} ]; then
+    echo "$portalias"
   elif [ ! -z ${playnode} ]; then
-    local lastPort="$(cat \                                                              
-      "portalias-${serviceName}" \
+    local portalias="$(cat \                                                              
+      "${flatFile}" \
       | tail -n1 \
       | /usr/bin/cut -d^ -f2)"
-    (( ++lastPort ))
-    echo "$playnode^$lastPort" >> "portalias-${serviceName}"                              
-    echo "$lastPort"                                                                   
+    (( ++portalias ))
+    echo "$playnode^$portalias" >> "${flatFile}"                              
+    echo "$portalias"                                                                   
   else                                                                                       
-    echo "no vars were set bruh"
+    echo "Playnode name was not ok."
   fi
 }
 
