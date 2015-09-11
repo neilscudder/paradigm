@@ -4,7 +4,7 @@ Establish and maintain remote access from a server to local services on distribu
 
 The primary use case for this framework is to forward the listening port of the music player daemon (http://musicpd.org) to a server where a client may control playback. This eliminates the otherwise essential configuration of the local network to provide client-server connectivity. 
 
-The result is a music player on a LAN that can be controlled from a phone, even if the phone switches from Wifi to mobile data.
+The result is a music player on a LAN that can be controlled from a phone, even if the phone wanders from Wifi to mobile data. Paradigm also facilitates the multiplication of control to many handsets with server-side caching, and augmenting of data from 3rd party sources (album art, artist bios etc.) while limiting and regulating load on the music player. Ideal for use in the commercial background music industry.
 
 <h3>Usage:</h3>
 &nbsp;&nbsp;paradigm [CONFIGDIR]<br>
