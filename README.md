@@ -2,7 +2,7 @@
 
 Establish and maintain access from a server to local services on remote client machines. Paradigm is a portable shell script that creates remote port forwarding tunnels over ssh, using ports allocated by a helper script on the server. Requires only a POSIX-compatible shell and openssh. This framework provides a reliable way for a fleet of headless firewalled devices to remain accesible despite changing networks or geographic location.
 
-The primary use case for this framework is to forward the listening port of the music player daemon (http://musicpd.org) to a server where a client may control playback. This eliminates the otherwise essential configuration of the local network to provide client-server connectivity. 
+The primary use case for this framework is to forward the listening port of the music player daemon (http://musicpd.org) to a server that may then provide playback control. This eliminates the otherwise essential configuration of the local network to provide client-server connectivity. 
 
 The result is an embedded device that can be controlled from a phone, even if the phone wanders from Wifi to mobile data. It may be sent by post and installed with zero configuration by a layman.
 
