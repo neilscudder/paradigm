@@ -2,9 +2,9 @@
 
 Establish and maintain remote access from a server to local services on distributed client machines. Paradigm is a portable shell script that creates remote port forwarding tunnels over ssh, using ports allocated by a helper script on the server. Requires only a POSIX-compatible shell and openssh. This framework provides a reliable way for a fleet of headless firewalled devices to remain accesible despite changing networks or geographic location.
 
-The primary use case for this framework is to forward the listening port of the music player daemon (http://musicpd.org) to a server where a client may control playback. This eliminates the otherwise essential configuration of the local network to provide client-server connectivity. The end result is a music player that can be controlled from a phone, despite either changing networks.
+The primary use case for this framework is to forward the listening port of the music player daemon (http://musicpd.org) to a server where a client may control playback. This eliminates the otherwise essential configuration of the local network to provide client-server connectivity. 
 
-Run paradigm every minute with system cron. The "checker" script should go in the server user's home directory.
+The result is a music player on a LAN that can be controlled from a phone, even if the phone switches from Wifi to mobile data.
 
 <h3>Usage:</h3>
 &nbsp;&nbsp;paradigm [CONFIGDIR]<br>
@@ -25,6 +25,7 @@ Run paradigm every minute with system cron. The "checker" script should go in th
 &nbsp;&nbsp;chmod a+x ./paradigm; cp paradigm /usr/bin<br>
 Set to run once per minute in user crontab:<br>
 &nbsp;&nbsp;*/1 * * * *  /usr/bin/paradigm  >> /dev/null 2>&1<br>
+The "checker" script should go in the server user's home directory.
 
 <h3>Definitions</h3>
 <ul>
