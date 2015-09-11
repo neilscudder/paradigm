@@ -1,11 +1,10 @@
 # paradigm v1.0.4
 
-A portable shell script to establish and maintain port forwarding tunnels. Compatible with /bin/sh (dash) in Ubuntu, tested also in Alpine linux using busybox and openssh. Run paradigm every minute with system cron. The "checker" script should go in the server user's home directory.
+Establish and maintain remote access from a server to local services on distributed client machines. Paradigm is a portable shell script that creates remote port forwarding tunnels over ssh, using ports allocated by a helper script on the server. Requires only a POSIX-compatible shell and openssh. This framework provides a reliable way for a fleet of headless firewalled devices to remain accesible despite changing networks or geographic location.
 
-The future: Logs are rotated and uploaded. Ssh parameters have failover values when problems occur. THE server-side framework keeps clients organized in a simple, secure, multi-user environment. Full POSIX compatibility. 
+The primary use case for this framework is to forward the listening port of the music player daemon (http://musicpd.org) to a server where a client may control playback. This eliminates the otherwise essential configuration of the local network to provide client-server connectivity. The end result is a music player that can be controlled from a phone, despite either changing networks.
 
-Contributing: see issues marked help wanted. Increment patch version before each pull request from dev to master. Actively seeking beta testers. 
-
+Run paradigm every minute with system cron. The "checker" script should go in the server user's home directory.
 
 <h3>Usage:</h3>
 &nbsp;&nbsp;paradigm [CONFIGDIR]<br>
