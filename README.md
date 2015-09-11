@@ -16,7 +16,7 @@ Paradigm also facilitates the multiplication of control to many handsets with se
 
 <h3>Example Config:</h3>
 &nbsp;&nbsp;CONTROLUSER="convict"<br>
-&nbsp;&nbsp;SERVERPORT=42<br>
+&nbsp;&nbsp;SERVERPORT=22<br>
 &nbsp;&nbsp;LOGFILE="./log.paradigm"<br>
 &nbsp;&nbsp;PLAYNODE="Dummy"<br>
 &nbsp;&nbsp;SERVICENAME="MPD"<br>
