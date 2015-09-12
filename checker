@@ -21,7 +21,8 @@ main()
       "${flatFile}" \
       | tail -n1 \
       | /usr/bin/cut -d^ -f2)"
-    (( ++portalias ))
+#    (( ++portalias ))
+    portalias=$((portalias+1))
     echo "$playnode^$portalias" >> "${flatFile}"                              
     echo "$portalias"                                                                   
   else                                                                                       
