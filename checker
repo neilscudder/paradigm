@@ -1,4 +1,4 @@
-#!/bin/bash                                                                          
+#!/bin/sh                                                                          
 # CHECKER 0.0.2 Copyright 2015 @neilscudder
 # Licenced under the GNU GPL <http://www.gnu.org/licenses/>.
 
@@ -8,7 +8,7 @@ main()
   local playnode="$1"
   local serviceName="$2"
   local mac="$3"
-  local flatFile="portalias-${serviceName}"  
+  local flatFile="portalias-${serviceName}"
   local portalias="$(cat \
     "${flatFile}" \
     | grep "^${playnode}" \
@@ -21,10 +21,10 @@ main()
       "${flatFile}" \
       | tail -n1 \
       | /usr/bin/cut -d^ -f2)"
-    (( ++portalias ))
-    echo "$playnode^$portalias" >> "${flatFile}"                              
+    portalias=$(($portalias+1))
+    echo "$playnode^$portalias" >> "${flatFile}"
     echo "$portalias"                                                                   
-  else                                                                                       
+  else
     echo "Playnode name was not ok."
   fi
 }
