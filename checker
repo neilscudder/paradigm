@@ -17,10 +17,11 @@ main()
   if [ ! -z ${portalias} ]; then
     echo "$portalias"
   elif [ ! -z ${playnode} ]; then
-    local portalias="$(cat \                                                              
+    portalias="$(cat \                                                              
       "${flatFile}" \
       | tail -n1 \
       | /usr/bin/cut -d^ -f2)"
+    [ ! -z ${portalias} ] portalias=1024
     portalias=$(($portalias+1))
     echo "$playnode^$portalias" >> "${flatFile}"
     echo "$portalias"                                                                   
