@@ -8,9 +8,9 @@ In practice this is useful to manage a fleet of headless embedded media players 
 
 <h3>Usage:</h3>
 &nbsp;&nbsp;paradigm [CONFIGDIR]<br>
-&nbsp;&nbsp;CONFIGDIR defaults to $HOME/.paradigm<br>
-&nbsp;&nbsp;Reads one service per file in the format below.<br>
-&nbsp;&nbsp;Run every minute to check all services and/or re-establish tunnels.
+CONFIGDIR defaults to $HOME/.paradigm<br>
+Reads one service per file in the format below.<br>
+Run every minute to check all services and/or re-establish tunnels.
 
 <h3>Example Config:</h3>
 &nbsp;&nbsp;CONTROLUSER="convict"<br>
