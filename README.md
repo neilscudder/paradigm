@@ -1,8 +1,10 @@
 # paradigm v1.0.4
 
-Access services on remote, portable, or mobile client machines as though they are on your server's localhost. Paradigm creates remote port forwarding tunnels over ssh to consolidate the service ports of many client machines on a single server. Requires only a POSIX-compatible shell and openssh. This framework provides a reliable way for a fleet of headless firewalled devices to remain accesible despite changing networks or geographic location.
+Access services on remote machines as though they are on your server's localhost. Paradigm creates remote port forwarding tunnels over ssh to consolidate the service ports of many clients on a single server. Requires only a POSIX-compatible shell and openssh. This framework provides a reliable way for a fleet of headless firewalled devices to remain accesible despite changing networks or geographic location.
 
-Ports for local services like sshd are forwarded through encrypted tunnels to a server. Tunnels are checked and re-established when broken. Everything is logged. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision.
+Ports for local services (like 22 - sshd) are forwarded through tunnels to unique ports on the server (between 1024-65535). The tunnel is initiated by logging in with key-based authentication, (preferrably to a jailed user account) and first retrieving a portalias value from the checker script. 
+
+Tunnels are checked at runtime and re-established if broken. Everything is logged. The paradigm script is expected to run on a headless, innaccesible unit, on an unknown network, and is designed to operate without supervision.
 
 In practice this is useful to manage a fleet of headless embedded media players such as digital signage in retail locations with poor quality computer networks. Remote accessibility to all forwarded service ports persists with minimal network requirements: access to one server over one port.
 
