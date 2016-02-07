@@ -15,11 +15,11 @@ In practice this is useful to manage a fleet of headless embedded media players 
 <h3>Example Config:</h3>
 &nbsp;&nbsp;CONTROLUSER="convict"<br>
 &nbsp;&nbsp;SERVERPORT=22<br>
-&nbsp;&nbsp;LOGFILE="./log.paradigm"<br>
-&nbsp;&nbsp;PLAYNODE="Dummy"<br>
+&nbsp;&nbsp;LOGFILE="~/log.paradigm"<br>
+&nbsp;&nbsp;PLAYNODE="Ricky"<br>
 &nbsp;&nbsp;SERVICENAME="MPD"<br>
 &nbsp;&nbsp;SERVICEPORT=6600<br>
-&nbsp;&nbsp;CONTROLSERVER="control"
+&nbsp;&nbsp;CONTROLSERVER="control.server.com"
 
 <h3>Installation:</h3>
 &nbsp;&nbsp;chmod a+x ./paradigm; cp paradigm /usr/bin<br>
