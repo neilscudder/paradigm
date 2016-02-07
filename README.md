@@ -1,6 +1,6 @@
 # paradigm v1.0.4
 
-Establish and maintain access to services on remote client machines. Paradigm creates remote port forwarding tunnels over ssh to consolidate the service ports of many client machines on a single server. Requires only a POSIX-compatible shell and openssh. This framework provides a reliable way for a fleet of headless firewalled devices to remain accesible despite changing networks or geographic location.
+Paradigm creates remote port forwarding tunnels over ssh to consolidate the service ports of many client machines on a single server. Requires only a POSIX-compatible shell and openssh. This framework provides a reliable way for a fleet of headless firewalled devices to remain accesible despite changing networks or geographic location.
 
 <h3>Usage:</h3>
 &nbsp;&nbsp;paradigm [CONFIGDIR]<br>
