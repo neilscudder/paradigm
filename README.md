@@ -58,5 +58,3 @@ Syntax Example
 - echo "Host control.server.com" >> config
 - echo "Hostname control.server.com" >> config
 - echo "IdentityFile ~/.ssh/control_rsa" >> config
-
-(http://www.rebol.com/docs/ssh-auto-login.html)
